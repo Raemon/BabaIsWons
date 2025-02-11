@@ -1,1 +1,8 @@
 *.bak
+sprites/
+sprites_split/
+baba-sprites.css
+spritesheet.png
+temp.py
+temp2.py
+temp3.py
