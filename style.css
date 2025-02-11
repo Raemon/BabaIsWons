@@ -1,7 +1,15 @@
 .block {
   position: absolute;
-  background-size: cover; /*contain*/
+  image-rendering: pixelated;  /* Modern browsers */
+  image-rendering: crisp-edges;  /* Firefox */
+  -ms-interpolation-mode: nearest-neighbor;  /* IE (legacy) */
+  background-size: 100% 100%;
   background-repeat: no-repeat;
+}
+
+/* Directional sprites (4 directions) */
+.baba, .belt, .ghost, .keke, .bolt {
+  background-size: 100% 400%;
   transition-property: top, left;
   transition-duration: 0.1s;
   transition-delay:0;
@@ -30,16 +38,16 @@ body {
   word-break: break-all;
   line-height: 0.8;
 }
-.gameword.active{
+/* .gameword.active{
   color: white;
-}
-.gameword.action {
+} */
+/* .gameword.action {
   border-radius: 4px;
   background-color: rgb(82, 53, 39);
-}
-.gameword.action.active{
+} */
+/* .gameword.action.active{
   background-color: brown;
-}
+} */
 .particle {
   position: absolute;
   font-size:2.0vw;
@@ -48,7 +56,8 @@ body {
   pointer-events: none;
 }
 .baba{
-  background-image: url("img/baba.png"); 
+  background-image: url("img/baba.png");
+  z-index: 1;
 }
 .baba.r { background-position-y: 0px; }
 .baba.l { background-position-y: 34%; }
@@ -87,12 +96,6 @@ body {
 }
 .rose {
   background-image: url("img/rose.png")
-}
-.red {
-  filter: invert(30%) sepia(88%) saturate(7376%) hue-rotate(355deg) brightness(106%) contrast(122%);
-}
-.blue {
-  filter: invert(10%) sepia(100%) saturate(5499%) hue-rotate(246deg) brightness(98%) contrast(150%);
 }
 .rock {
   background-image: url("img/rock.png")
@@ -145,105 +148,255 @@ body {
 .flower {
   background-image: url("img/flower.png")
 }
+
 .gameword.babaword {
-  color: pink;
-  font-size:3.2vh;
+  background-image: url("img/babaword.png");
+  color:transparent;
+}
+.gameword.isword {
+  background-image: url("img/isword.png");
+  color:transparent;
+}
+.gameword.youword {
+  background-image: url("img/youword.png");
+  color:transparent;
 }
 .gameword.wallword {
-  color: #667;
+  background-image: url("img/wallword.png");
+  color: transparent;
 }
 .gameword.levelword {
-  color: rgb(108, 3, 129);
+  background-image: url("img/levelword.png");
+  color: transparent;
 }
 .gameword.fireword {
-  color: #a50;
+  background-image: url("img/fireword.png");
+  color: transparent;
 }
 .gameword.flagword {
-  color: yellow;
+  background-image: url("img/flagword.png");
+  color: transparent;
 }
 .gameword.rockword {
-  color: brown;
+  background-image: url("img/rockword.png");
+  color: transparent;
 }
 .gameword.kekeword {
-  color: orange;
+  background-image: url("img/kekeword.png");
+  color: transparent;
 }
 .gameword.waterword {
-  color: #66F;
+  background-image: url("img/waterword.png");
+  color: transparent;
 }
 .gameword.fungusword {
-  color: #AA0;
+  background-image: url("img/fungusword.png");
+  color: transparent;
 }
 .gameword.defeatword {
-  background-color:#600;
+  background-image: url("img/defeatword.png");
+  color: transparent;
 }
 .gameword.skullword {
-  color:#900;
+  background-image: url("img/skullword.png");
+  color: transparent;
 }
 .gameword.lavaword {
-  color:#F70;
+  background-image: url("img/lavaword.png");
+  color: transparent;
 }
 .gameword.grassword {
-  color:#4F8;
+  background-image: url("img/grassword.png");
+  color: transparent;
   font-size:2.4vh;
 }
 .gameword.jellyword {
-  color:#46D;
+  background-image: url("img/jellyword.png");
+  color: transparent;
 }
 .gameword.crabword {
-  color:#F66;
+  background-image: url("img/crabword.png");
+  color: transparent;
 }
 .gameword.starword {
-  color:#DD6;
+  background-image: url("img/starword.png");
+  color: transparent;
 }
 .gameword.moonword {
-  color:#DD6;
+  background-image: url("img/moonword.png");
+  color: transparent;
 }
 .gameword.loveword {
-  color:#FDD;
+  background-image: url("img/loveword.png");
+  color: transparent;
 }
 .gameword.doorword {
-  color:#830;
+  background-image: url("img/doorword.png");
+  color: transparent;
   font-size:2.8vh;
 }
 .gameword.boxword {
-  color:#830;
+  background-image: url("img/boxword.png");
+  color: transparent;
 }
 .gameword.keyword {
-  color:#FF9;
+  background-image: url("img/keyword.png");
+  color: transparent;
 }
 .gameword.notword {
-  color: red;
+  background-image: url("img/notword.png");
+  color: transparent;
 }
 .gameword.roseword {
-  color: #B00;
+  background-image: url("img/roseword.png");
+  color: transparent;
 }
 .gameword.violetword {
-  color: #55B;
+  background-image: url("img/violetword.png");
+  color: transparent;
 }
 .gameword.boltword {
-  color: #FFB;
+  background-image: url("img/boltword.png");
+  color: transparent;
 }
 .gameword.treeword {
-  color: #090;
+  background-image: url("img/treeword.png");
+  color: transparent;
 }
 .gameword.beltword {
-  color: #44D;
+  background-image: url("img/beltword.png");
+  color: transparent;
 }
 .gameword.flowerword {
-  color: #49D;
+  background-image: url("img/flowerword.png");
+  color: transparent;
 }
 .gameword.groupword {
-  color: #1AA;
+  background-image: url("img/groupword.png");
+  color: transparent;
 }
 .gameword.lonelyword {
-  color: rgb(204, 75, 0);
+  background-image: url("img/lonelyword.png");
+  color: transparent;
 }
 .gameword.ghostword {
-  color: rgb(158, 67, 180);
+  background-image: url("img/ghostword.png");
+  color: transparent;
 }
 .gameword.iceword {
-  color:rgb(42, 144, 202);
+  background-image: url("img/iceword.png");
+  color: transparent;
 }
+
+.gameword.pushword {
+  background-image: url("img/pushword.png");
+  color: transparent;
+}
+
+.gameword.pullword {
+  background-image: url("img/pullword.png");
+  color: transparent;
+}
+
+.gameword.hotword {
+  background-image: url("img/hotword.png");
+  color: transparent;
+}
+
+.gameword.meltword {
+  background-image: url("img/meltword.png");
+  color: transparent;
+}
+
+.gameword.weakword {
+  background-image: url("img/weakword.png");
+  color: transparent;
+}
+
+.gameword.floatword {
+  background-image: url("img/floatword.png");
+  color: transparent;
+}
+
+.gameword.winword {
+  background-image: url("img/winword.png");
+  color: transparent;
+}
+
+.gameword.downword {
+  background-image: url("img/downword.png");
+  color: transparent;
+}
+
+.gameword.upword {
+  background-image: url("img/upword.png");
+  color: transparent;
+}
+
+.gameword.rightword {
+  background-image: url("img/rightword.png");
+  color: transparent;
+}
+
+.gameword.leftword {
+  background-image: url("img/leftword.png");
+  color: transparent;
+}
+
+.gameword.stopword {
+  background-image: url("img/stopword.png");
+  color: transparent;
+}
+
+.gameword.sinkword {
+  background-image: url("img/sinkword.png");
+  color: transparent;
+}
+
+.gameword.shutword {
+  background-image: url("img/shutword.png");
+  color: transparent;
+}
+
+.gameword.shiftword {
+  background-image: url("img/shiftword.png");
+  color: transparent;
+}
+
+.gameword.teleword {
+  background-image: url("img/teleword.png");
+  color: transparent;
+}
+
+.gameword.moreword {
+  background-image: url("img/moreword.png");
+  color: transparent;
+}
+
+.gameword.moveword {
+  background-image: url("img/moveword.png");
+  color: transparent;
+}
+
+.gameword.openword {
+  background-image: url("img/openword.png");
+  color: transparent;
+}
+
+.gameword.roseredword {
+  background-image: url("img/roseredword.png");
+  color: transparent;
+}
+
+.red {
+  background-image: url("img/redword.png");
+  color: transparent;
+}
+.blue {
+  background-image: url("img/blueword.png");
+  color: transparent;
+}
+
 button.selected {
   background-color: #99F;
 }

@@ -170,13 +170,26 @@ async function loadCommunityLevel(communityLevelId) {
   }
 }
 function setWindowSize() {
-  var width = $('#gamebody').width(),
-      height = $("#gamebody").height();
-  if (gamestate.size.z > 1 || width < height) {
-    $('#gamebody').css("height", width * 18 / (30 * gamestate.size.z));
-  } else {
-    $('#gamebody').css("width", height * 30 / 18);
-  }
+  var container = $('#gamebody');
+  var width = container.width();
+  var height = container.height();
+  
+  // Calculate cell size that would fit in width and height
+  var cellFromWidth = width / (gamestate.size.x * gamestate.size.z);
+  var cellFromHeight = height / gamestate.size.y;
+  
+  // Use the smaller cell size to ensure squares fit in both dimensions
+  var cellSize = Math.min(cellFromWidth, cellFromHeight);
+  
+  // Calculate new dimensions based on cell size
+  var newWidth = cellSize * gamestate.size.x * gamestate.size.z;
+  var newHeight = cellSize * gamestate.size.y;
+  
+  // Apply new dimensions
+  container.css({
+    "width": newWidth + "px",
+    "height": newHeight + "px"
+  });
 }
 function changeObj(obj, newName) {
   var objdiv = $("#"+obj.id);
