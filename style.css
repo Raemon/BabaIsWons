@@ -138,21 +138,33 @@ body {
 .gameword.iceword { background-image: url("img/iceword.png"); color: transparent; }
 .gameword.flowerword { background-image: url("img/flowerword.png"); color: transparent; }
 .gameword.skullword { background-image: url("img/skullword.png"); color: transparent; }
-.gameword.notword { background-image: url("imgnew/notword.gif"); color: transparent; }
-.gameword.violetword { background-image: url("imgnew/violetword.gif"); color: transparent; }
-.gameword.boltword { background-image: url("imgnew/boltword.gif"); color: transparent; }
-.gameword.beltword { background-image: url("imgnew/beltword.gif"); color: transparent; }
-.gameword.groupword { background-image: url("imgnew/groupword.gif"); color: transparent; }
-.gameword.lonelyword { background-image: url("imgnew/lonelyword.gif"); color: transparent; }
-.gameword.downword { background-image: url("imgnew/downword.gif"); color: transparent; }
-.gameword.upword { background-image: url("imgnew/upword.gif"); color: transparent; }
-.gameword.rightword { background-image: url("imgnew/rightword.gif"); color: transparent; }
-.gameword.leftword { background-image: url("imgnew/leftword.gif"); color: transparent; }
-.gameword.shiftword { background-image: url("imgnew/shiftword.gif"); color: transparent; }
-.gameword.teleword { background-image: url("imgnew/teleword.gif"); color: transparent; }
-.gameword.moreword { background-image: url("imgnew/moreword.gif"); color: transparent; }
-.gameword.moveword { background-image: url("imgnew/moveword.gif"); color: transparent; }
-.gameword.roseredword { background-image: url("imgnew/roseredword.gif"); color: transparent; }
+.gameword.defeatword { background-image: url("img/defeatword.png"); color: transparent; }
+.gameword.weakword { background-image: url("img/weakword.png"); color: transparent; }
+.gameword.shiftword { background-image: url("img/shiftword.png"); color: transparent; }
+.gameword.moveword { background-image: url("img/moveword.png"); color: transparent; }
+.gameword.pullword { background-image: url("img/pullword.png"); color: transparent; }
+.gameword.downword { background-image: url("img/downword.png"); color: transparent; }
+.gameword.upword { background-image: url("img/upword.png"); color: transparent; }
+.gameword.rightword { background-image: url("img/rightword.png"); color: transparent; }
+.gameword.leftword { background-image: url("img/leftword.png"); color: transparent; }
+.gameword.teleword { background-image: url("img/teleword.png"); color: transparent; }
+.gameword.moreword { background-image: url("img/moreword.png"); color: transparent; }
+.gameword.roseredword { background-image: url("img/roseredword.png"); color: transparent; }
+
+/* Additional world/level images */
+.chasm { background-image: url("img/chasm.png"); }
+.deepforest { background-image: url("img/deepforest.png"); }
+.flowergarden { background-image: url("img/flowergarden.png"); }
+.forestoffall { background-image: url("img/forestoffall.png"); }
+.kidlevels { background-image: url("img/kidlevels.png"); }
+.mountaintop { background-image: url("img/mountaintop.png"); }
+.overworld { background-image: url("img/overworld.png"); }
+.rockettrip { background-image: url("img/rockettrip.png"); }
+.solitaryisland { background-image: url("img/solitaryisland.png"); }
+.templeruins { background-image: url("img/templeruins.png"); }
+.thelake { background-image: url("img/thelake.png"); }
+.threed { background-image: url("img/threed.png"); }
+.volcaniccavern { background-image: url("img/volcaniccavern.png"); }
 
 /* UI Elements */
 .particle {
