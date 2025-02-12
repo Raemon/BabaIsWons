@@ -53,6 +53,30 @@ body {
 .baba.u { background-position-y: 69%; }
 .baba.d { background-position-y: 103%; }
 
+.keke.r { background-position-y: 0px; }
+.keke.l { background-position-y: 34%; }
+.keke.u { background-position-y: 69%; }
+.keke.d { background-position-y: 103%; }
+
+.bolt.r { background-position-y: 0px; }
+.bolt.l { background-position-y: 34%; }
+.bolt.u { background-position-y: 69%; }
+.bolt.d { background-position-y: 103%; }
+
+.belt.r { background-position-y: 0px; }
+.belt.l { background-position-y: 34%; }
+.belt.u { background-position-y: 69%; }
+.belt.d { background-position-y: 100%; }
+
+.ghost.r { background-position-y: 0px; }
+.ghost.l { background-position-y: 34%; }
+.ghost.u { background-position-y: 67%; }
+.ghost.d { background-position-y: 100%; }
+
+/* Additional utility classes */
+.red { background-image: url("imgnew/redword.gif"); color: transparent; }
+.blue { background-image: url("imgnew/blueword.gif"); color: transparent; }
+
 /* Game objects with animations */
 .baba { background-image: url("imgnew/baba.gif"); }
 .rock { background-image: url("imgnew/rock.gif"); }
@@ -114,6 +138,58 @@ body {
 .gameword.iceword { background-image: url("img/iceword.png"); color: transparent; }
 .gameword.flowerword { background-image: url("img/flowerword.png"); color: transparent; }
 .gameword.skullword { background-image: url("img/skullword.png"); color: transparent; }
+.gameword.notword { background-image: url("imgnew/notword.gif"); color: transparent; }
+.gameword.violetword { background-image: url("imgnew/violetword.gif"); color: transparent; }
+.gameword.boltword { background-image: url("imgnew/boltword.gif"); color: transparent; }
+.gameword.beltword { background-image: url("imgnew/beltword.gif"); color: transparent; }
+.gameword.groupword { background-image: url("imgnew/groupword.gif"); color: transparent; }
+.gameword.lonelyword { background-image: url("imgnew/lonelyword.gif"); color: transparent; }
+.gameword.downword { background-image: url("imgnew/downword.gif"); color: transparent; }
+.gameword.upword { background-image: url("imgnew/upword.gif"); color: transparent; }
+.gameword.rightword { background-image: url("imgnew/rightword.gif"); color: transparent; }
+.gameword.leftword { background-image: url("imgnew/leftword.gif"); color: transparent; }
+.gameword.shiftword { background-image: url("imgnew/shiftword.gif"); color: transparent; }
+.gameword.teleword { background-image: url("imgnew/teleword.gif"); color: transparent; }
+.gameword.moreword { background-image: url("imgnew/moreword.gif"); color: transparent; }
+.gameword.moveword { background-image: url("imgnew/moveword.gif"); color: transparent; }
+.gameword.roseredword { background-image: url("imgnew/roseredword.gif"); color: transparent; }
+
+/* UI Elements */
+.particle {
+  position: absolute;
+  font-size: 2.0vw;
+  font-weight: 700;
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+.tier {
+  position: absolute;
+  pointer-events: none;
+  background-color: white;
+  opacity: 0.05;
+}
+
+.controlInfo {
+  pointer-events: none;
+  position: absolute;
+  margin-top: -30px;
+  margin-left: 130px;
+  color: black;
+  z-index: 1;
+}
+
+.gridline {
+  pointer-events: none;
+  position: absolute;
+  outline: 1px solid #222;
+}
+
+#ruleUI {
+  height: 100px;
+  overflow-y: scroll;
+  display: inline-block;
+}
 
 /* Float animation */
 .float {
@@ -126,6 +202,76 @@ body {
     0% { margin-top: 0px; }
     50% { margin-top: -10px; }
     100% { margin-top: 0px; }
+}
+
+/* Modal */
+.modal {
+  position: absolute;
+  transition-property: opacity;
+  transition-duration: 0.5s;
+  transition-delay: 0;
+  z-index: 1000;
+  top: 25px;
+  left: 25px;
+  width: calc(100% - 80px);
+  height: calc(100% - 50px);
+  background-color: white;
+  box-shadow: 20px 20px 20px 2px black;
+  opacity: 0;
+  border: 3px solid #cc0e62;
+  padding-left: 30px;
+  overflow-y: auto;
+}
+
+.modal img {
+  width: 200px;
+}
+
+.modal span {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.modal span:hover {
+  outline: 2px solid blue;
+}
+
+.close {
+  color: #666;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  font-family: sans-serif;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#modaltext {
+  padding: 20px;
+  font-size: 20px;
+}
+
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0.6;
+  z-index: 100;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  font-size: 30px;
 }
 
 /* Mobile controls and other UI elements */
