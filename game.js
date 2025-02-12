@@ -16,6 +16,16 @@ window.globalId = 1;
 window.selectedObj = {};
 window.movesToExecute = [];
 export let gameHandler = {removeObj:removeObj,makeThing:makeThing,move:move,runDeferredMoves:runDeferredMoves,triggerWin:triggerWin, makeNewObjectFromOld:makeNewObjectFromOld};
+window.restart = function() {
+  var currentLevelId = gamestate.levelId;
+  var currentMoves = gamestate.moveCount;
+  if (currentLevelId) {
+    loadLevel(currentLevelId, true, currentMoves + 1);
+  } else {
+    location.reload();
+  }
+}
+
 window.onload = function () {
   var urlParams = new URLSearchParams(window.location.search);
   var levelnum = Math.floor(urlParams.get("level"));
@@ -148,18 +158,22 @@ function loadPremadeLevel(levelnum) {
   levelTag.src=`levels/level${levelnum}.js`;
   $("head")[0].appendChild(levelTag);
 }
-window.loadLevel = function(levelId) { // window level so it can be triggered from the HTML page
+window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level so it can be triggered from the HTML page
   var refresh = window.location.protocol + "//" + window.location.host + window.location.pathname + '?levelid='+levelId;
   window.history.pushState({ path: refresh }, '', refresh);
   loadAudio(levelId);
-  loadCommunityLevel(levelId);
+  loadCommunityLevel(levelId, isRestart, preserveMoves);
   $(".modal").hide().css("opacity",0);
 }
-async function loadCommunityLevel(communityLevelId) {
+async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
   var comgamestate = await netService.getGameState(communityLevelId);
   window.gamestate = comgamestate;
   comgamestate.levelId = communityLevelId;
-  initGameState(comgamestate);
+  initGameState(comgamestate, isRestart);
+  if (isRestart && preserveMoves !== undefined) {
+    gamestate.moveCount = preserveMoves;
+    updateMoveDisplay();
+  }
   setWindowSize();
   drawGameState();
 
@@ -245,6 +259,7 @@ function makeGameState(level) {
 }
 export function drawGameState() {
   $("#levelname").val(gamestate.name).html(gamestate.name);
+  updateMoveDisplay();
   var main = $("#gamebody");
   main[0].innerHTML = "";
   var width = main.width(),
@@ -317,14 +332,20 @@ let moveYouImplFn = moveYouImpl;
 export function changeMoveYou(moveYouFn) {
   moveYouImplFn = moveYouFn;
 }
+export function updateMoveDisplay() {
+  $("#movecount").html(gamestate.moveCount || 0);
+}
+
 export function moveYou(dir) {
   moveYouImplFn(dir);
+  updateMoveDisplay();
 }
 function moveYouImpl(dir) {
   playSfx("walk");
   loadAudio(gamestate.levelId);
   var concatStuff = gamestate.objects.concat(gamestate.words);
   var yous = concatStuff.filter(o => o.you);
+  gamestate.moveCount++;
   undo.push(JSON.stringify(gamestate));
   window.movesToExecute = [];
   if(gamestate.empty.you) {
@@ -503,10 +524,13 @@ export function updateRuleUI() {
     }
   }
 }
-export function initGameState(gs) {
+export function initGameState(gs, isRestart) {
   gs.empty = {};
   gs.size.z = gs.size.z || 1;
   window.savedSolution = gs.solution;
   gs.solution = [];
   gs.group = [];
+  if (!isRestart) {
+    gs.moveCount = 0;
+  }
 }

@@ -1,5 +1,6 @@
 
 import {getDirCoordsFromDir,updateObjPosition} from "./gameService.js"
+import {updateMoveDisplay} from "./game.js"
 import {executeRules} from "./rules/rules.js"
 import {playSfx} from "./music/sfx.js"
 var undoStack = [];
@@ -42,6 +43,8 @@ export function undo(gameHandler) {
     }
     undoDeletedElements(gamestate.words, lastGameState.words, gameHandler);
     executeRules(gameHandler);
+    gamestate.moveCount++;
+    updateMoveDisplay();
   }
   function undoDeletedElements (newElements, oldElements, gameHandler) {
     var main = $("#gamebody");
