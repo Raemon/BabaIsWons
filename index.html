@@ -7,14 +7,16 @@
 
 </head>
 <body>
-  <h3 style="text-align: center;"><a href="" id="prevlevellink" style="float: left">Previous Level</a>
-    <span>Baba Is 3D : <span id="levelname"></span> | Moves: <span id="movecount">0</span></span>
-    <a href="" id="nextlevellink" style="float: right">Next Level</a></h3>
+  <div style="text-align: center; margin: 10px 0; position: relative;">
+    <a href="" id="prevlevellink" style="float: left">Previous Level</a>
+    <span style="display: inline-block; white-space: nowrap; text-align: start; min-width: 30vw">Baba Is 3D : <span id="levelname"></span> | Research Progress: <span id="movecount">0 weeks, $0</span></span>
+    <a href="" id="nextlevellink" style="float: right">Next Level</a>
+  </div>
   <div id="gamebody">
 
   </div>
   <button id="worldselect">Select World</button>
-  <button onclick="window.restart()">Restart</button>
+  <!-- <button onclick="window.restart()">Restart</button> -->
   <audio id="audio" autoplay loop controls><source src="music/overworld.mp3" type="audio/mpeg"></audio><br/>
   <div id="mobileControls">
     <span class="ctlleft">&#8592;</span>

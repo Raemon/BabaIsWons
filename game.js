@@ -333,7 +333,36 @@ export function changeMoveYou(moveYouFn) {
   moveYouImplFn = moveYouFn;
 }
 export function updateMoveDisplay() {
-  $("#movecount").html(gamestate.moveCount || 0);
+  const moves = gamestate.moveCount || 0;
+  const totalWeeks = moves;
+  const money = moves * 5000;
+  
+  let years = Math.floor(totalWeeks / 52);
+  let remainingWeeks = totalWeeks % 52;
+  let months = Math.floor(remainingWeeks / 4);
+  remainingWeeks = remainingWeeks % 4;
+  
+  let timeText = [];
+  if (years > 0) {
+    timeText.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+  }
+  if (months > 0) {
+    timeText.push(`${months} ${months === 1 ? 'month' : 'months'}`);
+  }
+  if (remainingWeeks > 0) {
+    timeText.push(`${remainingWeeks} ${remainingWeeks === 1 ? 'week' : 'weeks'}`);
+  }
+  if (timeText.length === 0) {
+    timeText.push('0 weeks');
+  }
+  
+  const formattedMoney = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(money);
+
+  $("#movecount").html(`${timeText.join(', ')}, ${formattedMoney}`);
 }
 
 export function moveYou(dir) {

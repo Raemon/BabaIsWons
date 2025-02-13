@@ -43,7 +43,8 @@ export function undo(gameHandler) {
     }
     undoDeletedElements(gamestate.words, lastGameState.words, gameHandler);
     executeRules(gameHandler);
-    gamestate.moveCount++;
+    console.log("undo")
+    gamestate.moveCount += 4;
     updateMoveDisplay();
   }
   function undoDeletedElements (newElements, oldElements, gameHandler) {
