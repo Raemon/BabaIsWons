@@ -1,44 +1,54 @@
 import {removeAllAdjectives} from "./rules/adjective.js"
 import {wordMasks} from './rules/ruleService.js'
 import {executeRules} from "./rules/rules.js"
-import {drawGameState, gameHandler, updateRuleUI, changeMoveYou, move} from "./game.js"
+import {drawGameState, gameHandler, updateRuleUI, changeMoveYou, move, removeObj} from "./game.js"
 import * as undo from "./undo.js";
-var defaultObj = "wall";
+
+// Constants
+const defaultObj = "wall";
+
+// State
 window.makemode = "object";
+window.globalId = 1;
+
 $(document).ready(function(){
-  $("#objbutton").click(function (){window.makemode = "object"; $(this).addClass("selected"); $("#wordbutton").removeClass("selected")});
-  $("#wordbutton").click(function (){window.makemode = "word"; $(this).addClass("selected"); $("#objbutton").removeClass("selected")});
+  initializeGrid();
+
+  // Mode toggles
+  $("#objbutton").click(function (){
+    window.makemode = "object"; 
+    $(this).addClass("selected"); 
+    $("#wordbutton").removeClass("selected");
+  });
+
+  $("#wordbutton").click(function (){
+    window.makemode = "word"; 
+    $(this).addClass("selected"); 
+    $("#objbutton").removeClass("selected");
+  });
+
+  // Editor actions
   $("#save").click(function (){save();});
   $("#savecloud").click(function (){savecloud();});
   $("#cloneCloud").click(function (){cloneLevel();});
   $("#testbutton").click(function (){testlevel();});
   $("#load").click(function (){load();});
 
+  // Context menu prevention
+  $("#gamebody").on('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+  });
+
   $("#gamebody").mousedown(function (event) {
-    makeOrModObject(event);
+    // Calculate offset relative to gamebody
+    const rect = $(this).offset();
+    const offsetX = event.pageX - rect.left;
+    const offsetY = event.pageY - rect.top;
+    placeObject({ offsetX, offsetY, button: event.button, target: event.target });
   });
-  $('#objname').keydown(function (event) {
-    if(event.keyCode == 13) {
-      selectedObj.name = this.value;
-      delete window.timeoutid;
-      drawGameState();
-    } else {
-      if (window.timeoutid) {
-        window.clearTimeout(window.timeoutid);
-      }
-      window.timeoutid = window.setTimeout(()=>{
-        delete window.timeoutid;
-        selectedObj.name = $('#objname').val();
-        drawGameState();
-      },500)
-    }
-  });
-  $('#objdir').keydown(function (event) {
-    if(event.keyCode == 13) {
-      selectedObj.dir = this.value;
-      drawGameState();
-    }
-  });
+
+  // Initial setup
   window.setTimeout(function(){
     var levelcode = get("levelcode");
     var scrubbedGameState = scrubGameState(gamestate)
@@ -47,11 +57,75 @@ $(document).ready(function(){
     $("#ysize").val(gamestate.size.y);
     $("#zsize").val(gamestate.size.z);
     changeBaseGameFunctions();
-  }, 3000)
+  }, 3000);
 });
+
+function initializeGrid() {
+  const main = $("#gamebody");
+  const width = main.width();
+  const height = main.height();
+  const gridx = width / gamestate.size.x / gamestate.size.z;
+  const gridy = height / gamestate.size.y;
+  const gridz = width / gamestate.size.z;
+
+  const gridContainer = $('<div class="grid-container"></div>');
+  main.append(gridContainer);
+
+  for (let j = 0; j < gamestate.size.z; j++) {
+    for (let i = 0; i < gamestate.size.x; i++) {
+      gridContainer.append($(`<div class="gridline gridx${i}" style="left:${i*gridx + j*gridz}px;top:0;width:${gridx}px;height:${height}px"></div>`));
+    }
+  }
+
+  for (let i = 0; i < gamestate.size.y; i++) {
+    gridContainer.append($(`<div class="gridline gridy${i}" style="left:0;top:${i*gridy}px;width:${width}px;height:${gridy}px"></div>`));
+  }
+}
+
+function placeObject(event) {
+  undo.push(JSON.stringify(gamestate));
+  const gridpos = pointToGrid(event);
+
+  if (event.button == 0) { // Left click
+    const existingData = event.target.gamedata;
+    const objName = $('#objname').val() || defaultObj;
+    
+    // Remove existing object if it exists
+    if (existingData) {
+      removeObj(existingData);
+    }
+
+    // Create new object if not right click
+    const newObj = {
+      name: makemode === "object" ? (wordMasks.n.indexOf(objName) >= 0 ? objName : defaultObj) : objName,
+      x: gridpos.x,
+      y: gridpos.y,
+      z: gridpos.z,
+      id: "id"+globalId++,
+      dir: $('#objdir').val() || 'r'
+    };
+
+    if (makemode == "object") {
+      gamestate.objects.push(newObj);
+    } else if (makemode == "word") {
+      gamestate.words.push(newObj);
+    }
+
+  } else if (event.button == 2) { // Right click
+    if (event.target.gamedata) {
+      removeObj(event.target.gamedata);
+    }
+    event.preventDefault();
+    return false;
+  }
+
+  drawGameState();
+}
+
 function testlevel() {
   window.open(window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '')+"?levelid="+gamestate.levelId);
 }
+
 function changeBaseGameFunctions(){
   changeMoveYou(function(dir) {
     undo.push(JSON.stringify(gamestate));
@@ -60,6 +134,7 @@ function changeBaseGameFunctions(){
     updateRuleUI();
   });
 }
+
 function moveAllDir(dir) {
   for(var obj of gamestate.objects) {
     obj.y += dir.y;
@@ -71,41 +146,11 @@ function moveAllDir(dir) {
   }
   drawGameState();
 }
+
 function scrubGameState(gamestate) {
   var scrubbed = JSON.parse(JSON.stringify(gamestate));
   removeAllAdjectives(scrubbed, true);
   return scrubbed;
-}
-function makeOrModObject(event) {
-  undo.push(JSON.stringify(gamestate));
-  var gridpos = pointToGrid(event);
-  if (event.button == 0) {
-    if (!event.target.gamedata) {
-      window.selectedObj = {name: window.selectedObj.name || defaultObj,x: gridpos.x, y: gridpos.y, z: gridpos.z, id: "id"+globalId};
-      $('#objname').val(window.selectedObj.name);
-      $('#objdir').val(window.selectedObj.dir);
-      if (makemode == "object") {
-        if (!~wordMasks.n.indexOf(window.selectedObj.name)) {
-          window.selectedObj.name = defaultObj;
-        }
-        gamestate.objects.push(window.selectedObj);
-      } else if (makemode == "word") {
-        gamestate.words.push(window.selectedObj);
-      }
-    } else {
-      var selectedObj = event.target.gamedata;
-      $('#objname').val(selectedObj.name);
-      $('#objdir').val(selectedObj.dir);
-      window.selectedObj = selectedObj;
-    }
-  } else if (event.button == 2) {
-    event.target.gamedata && removeObj(event.target.gamedata);
-    event.preventDefault();
-    return false;
-  }
-  drawGameState();
-  $("#"+window.selectedObj.id).addClass("selected");
-  window.setTimeout(()=>{$('#objname').focus().select();},0);
 }
 
 function pointToGrid(event) {
@@ -118,6 +163,7 @@ function pointToGrid(event) {
       ret = {x: x, y: y, z: z};
   return ret;
 }
+
 function save() {
   window.gamestate.name = $("#levelname").val();
   var file = new Blob(["window.leveldata="+JSON.stringify(scrubGameState(gamestate))], {type: "text"});
@@ -132,15 +178,13 @@ function save() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
   }, 0);
-
 }
+
 async function savecloud() {
   window.gamestate.name = $("#levelname").val();
   window.gamestate.size.x = $("#xsize").val();
   window.gamestate.size.y = $("#ysize").val();
   window.gamestate.size.z = $("#zsize").val();
-  $("#ysize").val(gamestate.size.y);
-  $("#zsize").val(gamestate.size.z);
   var urlParams = new URLSearchParams(window.location.search);
   var communityLevelId = urlParams.get("levelid");
   if (!communityLevelId) {
@@ -155,11 +199,13 @@ async function savecloud() {
     }
   }
 }
+
 function load() {
   var levelcode = JSON.parse(get("levelcode").value);
   window.gamestate = levelcode;
   drawGameState();
 }
+
 async function cloneLevel() {
   delete window.gamestate["_id"];
   var ret = await netService.makeNewLevel(window.gamestate);

@@ -218,7 +218,7 @@ function changeToText(obj) {
   gamestate.words.push(newObj);
   makeThing($("#gamebody"), newObj, null, null, null, "id"+globalId++, false);
 }
-function removeObj(obj) {
+export function removeObj(obj) {
   for (var i=gamestate.objects.length-1;i>=0;i--) {
     if (gamestate.objects[i] == obj) {
       gamestate.objects.splice(i, 1);
@@ -236,7 +236,7 @@ function removeObj(obj) {
     }
     applyAdjectives();
   }
-  particle(obj, "#733", 10, 0.1);
+  // particle(obj, "#733", 10, 0.1);
 }
 function makeNewObjectFromOld(oldObj, newName, isWord) {
   var newObj = deepClone(oldObj);
