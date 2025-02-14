@@ -1,42 +1,4 @@
-/* Custom Properties */
-:root {
-  /* Colors */
-  --game-bg: black;
-  --grid-line: #222;
-  --text-color: #999;
-  --control-text: #666;
-  
-  /* Sizes */
-  --game-word-size: 2.2vh;
-  --particle-size: 2.0vw;
-  
-  /* Animations */
-  --movement-duration: 0.1s;
-  --float-duration: 3s;
-  
-  /* Sprite positions */
-  --sprite-pos-right: 0;
-  --sprite-pos-left: 34%;
-  --sprite-pos-up: 69%;
-  --sprite-pos-down: 103%;
-}
-
-/* Base Game Layout */
-body {
-  padding: 1vw;
-  padding-top: 5px;
-  position: relative;
-  height: 80%;
-  overflow: hidden;
-}
-
-#gamebody {
-  height: 100%;
-  background-color: var(--game-bg);
-  position: relative;
-}
-
-/* Game Objects Base */
+/* Game Elements Base Styles */
 .block {
   position: absolute;
   image-rendering: pixelated;
@@ -48,9 +10,9 @@ body {
 
 /* Game Text */
 .gameword {
-  font-size: var(--game-word-size);
-  color: var(--text-color);
-  font-family: system-ui;
+  font-size: 2.2vh;
+  color: white;
+  --main-font: "Comic Sans MS", "Comic Sans", "ComicShannsMono Nerd Font", cursive;
   text-transform: uppercase;
   display: flex;
   justify-content: center;
@@ -58,13 +20,14 @@ body {
   align-items: center;
   word-break: break-all;
   line-height: 0.8;
+  text-shadow: 0 0 2px rgba(0,0,0,0.8);
 }
 
 /* Directional Sprites */
 .baba, .belt, .ghost, .keke, .bolt {
   background-size: 100% 400%;
   transition-property: top, left;
-  transition-duration: var(--movement-duration);
+  transition-duration: 0.1s;
   transition-delay: 0;
 }
 
@@ -74,39 +37,41 @@ body {
   background-size: 100% 100% !important;
 }
 
-/* Directional Classes */
-.baba.r { background-position-y: var(--sprite-pos-right); }
-.baba.l { background-position-y: var(--sprite-pos-left); }
-.baba.u { background-position-y: var(--sprite-pos-up); }
-.baba.d { background-position-y: var(--sprite-pos-down); }
+/* Direction Classes */
+.baba.r { background-position-y: 0; }
+.baba.l { background-position-y: 34%; }
+.baba.u { background-position-y: 69%; }
+.baba.d { background-position-y: 103%; }
 
-.keke.r { background-position-y: var(--sprite-pos-right); }
-.keke.l { background-position-y: var(--sprite-pos-left); }
-.keke.u { background-position-y: var(--sprite-pos-up); }
-.keke.d { background-position-y: var(--sprite-pos-down); }
+.keke.r { background-position-y: 0; }
+.keke.l { background-position-y: 34%; }
+.keke.u { background-position-y: 69%; }
+.keke.d { background-position-y: 103%; }
 
-.bolt.r { background-position-y: var(--sprite-pos-right); }
-.bolt.l { background-position-y: var(--sprite-pos-left); }
-.bolt.u { background-position-y: var(--sprite-pos-up); }
-.bolt.d { background-position-y: var(--sprite-pos-down); }
+.bolt.r { background-position-y: 0; }
+.bolt.l { background-position-y: 34%; }
+.bolt.u { background-position-y: 69%; }
+.bolt.d { background-position-y: 103%; }
 
-.belt.r { background-position-y: var(--sprite-pos-right); }
-.belt.l { background-position-y: var(--sprite-pos-left); }
-.belt.u { background-position-y: var(--sprite-pos-up); }
+.belt.r { background-position-y: 0; }
+.belt.l { background-position-y: 34%; }
+.belt.u { background-position-y: 69%; }
 .belt.d { background-position-y: 100%; }
 
-.ghost.r { background-position-y: var(--sprite-pos-right); }
-.ghost.l { background-position-y: var(--sprite-pos-left); }
+.ghost.r { background-position-y: 0; }
+.ghost.l { background-position-y: 34%; }
 .ghost.u { background-position-y: 67%; }
 .ghost.d { background-position-y: 100%; }
 
 /* Game UI Elements */
 .particle {
   position: absolute;
-  font-size: var(--particle-size);
+  font-size: 2.0vw;
   font-weight: 700;
-  font-family: sans-serif;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
   pointer-events: none;
+  color: white;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
 
 .tier {
@@ -121,15 +86,17 @@ body {
   position: absolute;
   margin-top: -30px;
   margin-left: 130px;
-  color: black;
+  color: white;
   z-index: 1;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
 
 /* Grid System */
 .gridline {
   pointer-events: none;
   position: absolute;
-  outline: 1px solid var(--grid-line);
+  outline: 1px solid #222;
   z-index: 1;
 }
 
@@ -149,13 +116,13 @@ body {
 
 /* Animations */
 .float {
-  animation: floatAnim var(--float-duration) infinite;
+  animation: floatAnim 3s infinite;
 }
 
 @keyframes floatAnim {
-  0% { margin-top: 0; }
-  50% { margin-top: -10px; }
-  100% { margin-top: 0; }
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
 }
 
 /* Mobile Controls */
@@ -163,7 +130,7 @@ body {
   display: none;
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 768px) {
   #mobileControls {
     display: inline-block;
     position: relative;
@@ -175,9 +142,15 @@ body {
     position: absolute;
     width: 15vw;
     height: 15vw;
-    border: 1px solid #555;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
     font-size: 12vw;
     margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
   }
   
   .ctlup { top: -15vw; left: 15vw; }
@@ -187,4 +160,21 @@ body {
   .ctlspace { left: 60vw; }
   
   #ruleUI { display: none; }
+}
+
+/* Audio Controls */
+#audio {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+#audio:hover {
+  opacity: 1;
+}
+
+.audio-container {
+  display: none;
 }

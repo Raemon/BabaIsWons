@@ -1,6 +1,6 @@
 const config = {
   // Game settings
-  playSnd: true,
+  playSnd: false,
   winForward: true,
   particle: true,
   ruleUI: true,

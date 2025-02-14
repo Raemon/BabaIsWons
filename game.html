@@ -1,0 +1,86 @@
+<html>
+<head>
+    <link type="text/css" href="game.css" rel="stylesheet" />
+    <link type="text/css" href="ui.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <title>Baba Is You</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="game-page">
+  <div class="navigation-bar">
+    <button id="worldselect">Select World</button>
+    <span class="level-title">Baba Is You: <span id="levelname"></span></span>
+    <div class="nav-controls">
+      <a href="" id="prevlevellink" class="nav-link">Previous Level</a>
+      <a href="" id="nextlevellink" class="nav-link">Next Level</a>
+    </div>
+  </div>
+
+  <div id="costs">  
+    Research Costs:<br>
+    <span id="movecount">0 weeks, $0</span>
+  </div>
+  
+  <div id="gamebody">
+  </div>
+  
+  <audio id="audio" autoplay loop controls>
+    <source src="music/overworld.mp3" type="audio/mpeg">
+  </audio>
+  
+  <div id="mobileControls">
+    <span class="ctlleft">&#8592;</span>
+    <span class="ctlup">&#8593;</span>
+    <span class="ctlright">&#8594;</span>
+    <span class="ctldown">&#8595;</span>
+    <span class="ctlspace">sp</span>
+    <span class="ctlz">Z</span>
+  </div>
+  
+  <div id="ruleUI"></div>
+  
+  <div class="loading">Loading</div>
+  
+  <div class="modal browse-modal">
+    <div class="modal-content">
+      <h2>Select World</h2>
+      <div class="modal-tabs">
+        <button class="tab-button selected" data-tab="official">Official Worlds</button>
+        <button class="tab-button" data-tab="custom">Custom Levels</button>
+      </div>
+      <div class="tab-content visible" id="official-levels">
+        <div class="world-grid">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+      <div class="tab-content" id="custom-levels">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      <button class="close">X</button>
+    </div>
+  </div>
+
+  <!-- Audio Elements -->
+  <div class="audio-container">
+    <audio id="walk0" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk1" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk2" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk3" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk4" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk5" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="win0" class="winsnd"><source src="music/win.mp3" type="audio/mpeg"></audio>
+  </div>
+</body>
+
+<script src="jquery-3.4.1.min.js"></script>
+<script src="markgen.js"></script>
+<script src="netcode.js"></script>
+<script src="particle.js"></script>
+<script src="levels/levelids.js"></script>
+<script src="imageLoader.js"></script>
+<script type="module">
+  import config from './config.js';
+  window.config = config;
+</script>
+<script src="game.js" type="module"></script>
+</html>

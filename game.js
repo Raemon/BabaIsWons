@@ -40,10 +40,9 @@ window.onload = async function () {
     loadCommunityLevel(communityLevelId);
     levelnum = 1;
   } else if (!isLevelMaker) {
-    // Automatically show world selector if no level is specified and not in levelmaker
-    $(".modal").show();
-    setTimeout(() => $(".modal").addClass("visible"), 10);
-    await loadWorlds();
+    // Redirect to home page if no level is specified
+    window.location.href = "home.html";
+    return;
   }
   
   $("#nextlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, 1)); e.preventDefault();return false;});
@@ -103,15 +102,19 @@ window.onload = async function () {
 window.pressKey = function(event) {
   gamestate.solution.push(event.keyCode);
   if (event.keyCode == 37) {
+    event.preventDefault();
     moveYou({ x: -1, y: 0, z: 0 });
   }
   else if (event.keyCode == 39) {
+    event.preventDefault();
     moveYou({ x: 1, y: 0, z: 0 });
   }
   else if (event.keyCode == 38) {
+    event.preventDefault();
     moveYou({ x: 0, y: -1, z: 0 });
   }
   else if (event.keyCode == 40) {
+    event.preventDefault();
     moveYou({ x: 0, y: 1, z: 0 });
   } else if (event.keyCode == 87) {
     moveYou({ x: 0, y: 0, z: 1 });
@@ -332,22 +335,19 @@ async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
   }
 }
 function setWindowSize() {
-  var container = $('#gamebody');
-  var width = container.width();
-  var height = container.height();
+  const container = $('#gamebody');
+  const containerSize = Math.min(container.width(), container.height());
   
   // Calculate cell size that would fit in width and height
-  var cellFromWidth = width / (gamestate.size.x * gamestate.size.z);
-  var cellFromHeight = height / gamestate.size.y;
+  const cellSize = containerSize / Math.max(
+    gamestate.size.x * gamestate.size.z,
+    gamestate.size.y
+  );
   
-  // Use the smaller cell size to ensure squares fit in both dimensions
-  var cellSize = Math.min(cellFromWidth, cellFromHeight);
+  const newWidth = cellSize * gamestate.size.x * gamestate.size.z;
+  const newHeight = cellSize * gamestate.size.y;
   
-  // Calculate new dimensions based on cell size
-  var newWidth = cellSize * gamestate.size.x * gamestate.size.z;
-  var newHeight = cellSize * gamestate.size.y;
-  
-  // Apply new dimensions
+  // Set both width and height to maintain aspect ratio
   container.css({
     "width": newWidth + "px",
     "height": newHeight + "px"
