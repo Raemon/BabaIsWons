@@ -26,7 +26,7 @@ window.restart = function() {
   }
 }
 
-window.onload = function () {
+window.onload = async function () {
   var urlParams = new URLSearchParams(window.location.search);
   var levelnum = Math.floor(urlParams.get("level"));
   var communityLevelId = urlParams.get("levelid");
@@ -35,14 +35,38 @@ window.onload = function () {
   } else if (communityLevelId) {
     loadCommunityLevel(communityLevelId);
     levelnum = 1;
-  } else {
-    $(".modal").show().css("opacity",1);
-    setWindowSize();
   }
+  
   $("#nextlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, 1)); e.preventDefault();return false;});
   $("#prevlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, -1)); e.preventDefault();return false;});
-  $(".close").click(function() {$(".modal").hide().css("opacity",0);})
-  $("#worldselect").click(function() {$(".modal").show().css("opacity",1);});
+  
+  $(".close").click(function() {$(".modal").removeClass("visible"); setTimeout(() => $(".modal").hide(), 300);})
+  
+  $("#worldselect").click(async function() {
+    $(".modal").show();
+    setTimeout(() => $(".modal").addClass("visible"), 10);
+    
+    if ($('#official-levels').is(':empty')) {
+      await loadWorlds();
+    }
+  });
+  
+  // Tab switching
+  $('.tab-button').click(async function() {
+    $('.tab-button').removeClass('selected');
+    $(this).addClass('selected');
+    $('.tab-content').hide();
+    
+    const tab = $(this).data('tab');
+    const tabContent = $(`#${tab}-levels`);
+    tabContent.show();
+    
+    if (tab === 'custom' && tabContent.is(':empty')) {
+      await loadCustomLevels();
+    }
+  });
+  
+  setWindowSize();
   $(".ctlleft")[0] && ($(".ctlleft")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: -1, y: 0, z: 0 }); },false));
   $(".ctlright")[0]&& ($(".ctlright")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 1, y: 0, z: 0 }); },false));
   $(".ctlup")[0]&& ($(".ctlup")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: -1, z: 0 }); },false));
@@ -158,12 +182,94 @@ function loadPremadeLevel(levelnum) {
   levelTag.src=`levels/level${levelnum}.js`;
   $("head")[0].appendChild(levelTag);
 }
+// Level browser functions
+async function loadWorlds() {
+  // Only load world headers first
+  const container = $('#official-levels').empty();
+  
+  for (let worldName in window.worlds) {
+    const displayName = worldName === "???" ? worldName :
+                       worldName.replace(/([A-Z])/g, ' $1').trim(); // Add spaces before capitals
+    
+    const firstLevelId = window.worlds[worldName][0];
+    const worldSection = $(`
+      <div class="level-card">
+        <img src="img/${worldName.toLowerCase().replace(/ /g, '')}.png" alt="${displayName}">
+        <h3>${displayName}</h3>
+        <div class="meta">${window.worlds[worldName].length} levels</div>
+        <button class="play-button" onclick="loadLevel('${firstLevelId}')">Start World</button>
+      </div>
+    `);
+
+    container.append(worldSection);
+  }
+}
+
+async function loadWorldLevels(worldName, container) {
+  const worldLevels = window.worlds[worldName];
+  container.empty();
+  
+  for (const levelId of worldLevels) {
+    try {
+      const levelData = await netService.getGameState(levelId);
+      const levelCard = $(`
+        <div class="level-card" data-id="${levelId}">
+          <h3>${levelData.name || 'Unnamed Level'}</h3>
+          <button class="play-button" onclick="loadLevel('${levelId}')">Play Level</button>
+        </div>
+      `);
+      container.append(levelCard);
+    } catch (e) {
+      console.error(`Failed to load level ${levelId}:`, e);
+    }
+  }
+}
+
+async function loadCustomLevels() {
+  const container = $('#custom-levels').empty();
+  const customLevels = JSON.parse(localStorage.getItem('customLevels') || '[]');
+  
+  if (customLevels.length === 0) {
+    container.append(`
+      <div class="empty-state">
+        <p>No custom levels yet!</p>
+        <a href="levelmaker.html" target="_blank" class="create-level-button">
+          Create Your First Level
+        </a>
+      </div>
+    `);
+    return;
+  }
+
+  // Create a grid similar to worlds
+  const grid = $('<div class="level-grid"></div>');
+  container.append(grid);
+
+  for (const level of customLevels) {
+    try {
+      const levelData = await netService.getGameState(level.id);
+      const card = $(`
+        <div class="level-card" data-id="${level.id}">
+          <h3>${level.name}</h3>
+          <div class="meta">Created: ${new Date(level.created).toLocaleDateString()}</div>
+          <button class="play-button" onclick="loadLevel('${level.id}')">Play Level</button>
+          <a href="levelmaker.html?levelid=${level.id}" target="_blank" class="edit-button">Edit</a>
+        </div>
+      `);
+      grid.append(card);
+    } catch (e) {
+      console.error(`Failed to load custom level ${level.id}:`, e);
+    }
+  }
+}
+
 window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level so it can be triggered from the HTML page
   var refresh = window.location.protocol + "//" + window.location.host + window.location.pathname + '?levelid='+levelId;
   window.history.pushState({ path: refresh }, '', refresh);
   loadAudio(levelId);
   loadCommunityLevel(levelId, isRestart, preserveMoves);
-  $(".modal").hide().css("opacity",0);
+  $(".modal").removeClass("visible");
+  setTimeout(() => $(".modal").hide(), 300);
 }
 async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
   var comgamestate = await netService.getGameState(communityLevelId);

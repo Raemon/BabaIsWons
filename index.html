@@ -16,7 +16,6 @@
 
   </div>
   <button id="worldselect">Select World</button>
-  <!-- <button onclick="window.restart()">Restart</button> -->
   <audio id="audio" autoplay loop controls><source src="music/overworld.mp3" type="audio/mpeg"></audio><br/>
   <div id="mobileControls">
     <span class="ctlleft">&#8592;</span>
@@ -28,25 +27,37 @@
   </div>
   <div id="ruleUI"> </div>
   <div class="loading" style="display:none;">Loading</div>
-  <div class="modal" style="display: none;">
-    <h2>
-      World Select
-    </h2>
-    <span onclick="loadLevel('61e1d0fd7dd2580015d2a044')"><h3>Overworld</h3><img src="img/overworld.png" /></span>
-    <span onclick="loadLevel('61e1d1cd7dd2580015d2a04c')"><h3>The Lake</h3><img src="img/thelake.png" /></span>
-    <span onclick="loadLevel('61dc9d364f80c300151cf338')"><h3>Solitary Island</h3><img src="img/solitaryisland.png" /></span>
-    <span onclick="loadLevel('61e20ae38bab1e0015f357c3')"><h3>Temple Ruins</h3><img src="img/templeruins.png" /></span>
-    <span onclick="loadLevel('61e5a7dad6f4d3001551e899')"><h3>Forest of Fall</h3><img src="img/forestoffall.png" /></span>
-    <span onclick="loadLevel('61ea0f29089d870015a39f59')"><h3>Deep Forest</h3><img src="img/deepforest.png" /></span>
-    <span onclick="loadLevel('61ed83aa528a6c00150b09af')"><h3>Rocket Trip</h3><img src="img/rockettrip.png" /></span>
-    <span onclick="loadLevel('61f04f30e6368e0015148c95')"><h3>Flower Garden</h3><img src="img/flowergarden.png" /></span>
-    <span onclick="loadLevel('62017801a3fd7e00155298f4')"><h3>Chasm</h3><img src="img/chasm.png" /></span>
-    <span onclick="loadLevel('62054c9351fbd100156f1a1a')"><h3>Volcanic Cavern</h3><img src="img/volcaniccavern.png" /></span>
-    <span onclick="loadLevel('6209430dbfabb400151c23d8')"><h3>Mountaintop</h3><img src="img/mountaintop.png" /></span>
-    <span onclick="loadLevel('6202fc27d971e6001594bb7d')"><h3>???</h3><img src="img/question.png" /></span>
-    <span onclick="loadLevel('6202657e7e66ca00157e8714')"><h3>Baba Is Baby</h3><img src="img/kidlevels.png" /></span>
-    <span onclick="loadLevel('620ef95e07e3c300151e5470')"><h3>Baba Is 3D</h3><img src="img/threed.png" /></span>
-    <div class="close">X</div>
+  <div class="modal browse-modal" style="display:none; pointer-events: none;">
+    <div class="modal-content" style="pointer-events: all;">
+      <h2>Select World</h2>
+      <div class="modal-tabs">
+        <button class="tab-button selected" data-tab="official">Official Worlds</button>
+        <button class="tab-button" data-tab="custom">Custom Levels</button>
+      </div>
+      <div class="tab-content" id="official-levels">
+        <!-- Official worlds and their first levels -->
+        <div class="world-grid">
+          <span onclick="loadLevel('61e1d0fd7dd2580015d2a044')"><h3>Overworld</h3><img src="img/overworld.png" /></span>
+          <span onclick="loadLevel('61e1d1cd7dd2580015d2a04c')"><h3>The Lake</h3><img src="img/thelake.png" /></span>
+          <span onclick="loadLevel('61dc9d364f80c300151cf338')"><h3>Solitary Island</h3><img src="img/solitaryisland.png" /></span>
+          <span onclick="loadLevel('61e20ae38bab1e0015f357c3')"><h3>Temple Ruins</h3><img src="img/templeruins.png" /></span>
+          <span onclick="loadLevel('61e5a7dad6f4d3001551e899')"><h3>Forest of Fall</h3><img src="img/forestoffall.png" /></span>
+          <span onclick="loadLevel('61ea0f29089d870015a39f59')"><h3>Deep Forest</h3><img src="img/deepforest.png" /></span>
+          <span onclick="loadLevel('61ed83aa528a6c00150b09af')"><h3>Rocket Trip</h3><img src="img/rockettrip.png" /></span>
+          <span onclick="loadLevel('61f04f30e6368e0015148c95')"><h3>Flower Garden</h3><img src="img/flowergarden.png" /></span>
+          <span onclick="loadLevel('62017801a3fd7e00155298f4')"><h3>Chasm</h3><img src="img/chasm.png" /></span>
+          <span onclick="loadLevel('62054c9351fbd100156f1a1a')"><h3>Volcanic Cavern</h3><img src="img/volcaniccavern.png" /></span>
+          <span onclick="loadLevel('6209430dbfabb400151c23d8')"><h3>Mountaintop</h3><img src="img/mountaintop.png" /></span>
+          <span onclick="loadLevel('6202fc27d971e6001594bb7d')"><h3>???</h3><img src="img/question.png" /></span>
+          <span onclick="loadLevel('6202657e7e66ca00157e8714')"><h3>Baba Is Baby</h3><img src="img/kidlevels.png" /></span>
+          <span onclick="loadLevel('620ef95e07e3c300151e5470')"><h3>Baba Is 3D</h3><img src="img/threed.png" /></span>
+        </div>
+      </div>
+      <div class="tab-content" id="custom-levels" style="display:none;">
+        <!-- Custom levels loaded dynamically -->
+      </div>
+      <div class="close">X</div>
+    </div>
   </div>
 
   <audio id="walk0" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
