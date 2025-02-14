@@ -16,23 +16,69 @@ window.globalId = 1;
 window.selectedObj = {};
 window.movesToExecute = [];
 export let gameHandler = {removeObj:removeObj,makeThing:makeThing,move:move,runDeferredMoves:runDeferredMoves,triggerWin:triggerWin, makeNewObjectFromOld:makeNewObjectFromOld};
-window.onload = function () {
+window.restart = function() {
+  var currentLevelId = gamestate.levelId;
+  var currentMoves = gamestate.moveCount;
+  if (currentLevelId) {
+    loadLevel(currentLevelId, true, currentMoves + 1);
+  } else {
+    location.reload();
+  }
+}
+
+window.onload = async function () {
   var urlParams = new URLSearchParams(window.location.search);
   var levelnum = Math.floor(urlParams.get("level"));
   var communityLevelId = urlParams.get("levelid");
+  
+  // Only show world selector on game page (not levelmaker)
+  const isLevelMaker = window.location.pathname.includes('levelmaker');
+  
   if (levelnum) {
     loadPremadeLevel(levelnum);
   } else if (communityLevelId) {
     loadCommunityLevel(communityLevelId);
     levelnum = 1;
-  } else {
-    $(".modal").show().css("opacity",1);
-    setWindowSize();
+  } else if (!isLevelMaker) {
+    // Automatically show world selector if no level is specified and not in levelmaker
+    $(".modal").show();
+    setTimeout(() => $(".modal").addClass("visible"), 10);
+    await loadWorlds();
   }
+  
   $("#nextlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, 1)); e.preventDefault();return false;});
   $("#prevlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, -1)); e.preventDefault();return false;});
-  $(".close").click(function() {$(".modal").hide().css("opacity",0);})
-  $("#worldselect").click(function() {$(".modal").show().css("opacity",1);});
+  
+  $(".close").click(function() {$(".modal").removeClass("visible"); setTimeout(() => $(".modal").hide(), 300);})
+  
+  $("#worldselect").click(async function() {
+    $(".modal").show();
+    setTimeout(() => $(".modal").addClass("visible"), 10);
+    
+    if ($('#official-levels').is(':empty')) {
+      await loadWorlds();
+    }
+  });
+  
+  // Tab switching
+  $('.tab-button').click(async function() {
+    $('.tab-button').removeClass('selected');
+    $(this).addClass('selected');
+    $('.tab-content').hide();
+    
+    const tab = $(this).data('tab');
+    const tabContent = $(`#${tab}-levels`);
+    tabContent.show();
+
+    console.log(tab);
+    console.log(tabContent.children().first())
+    
+    if (tab === 'custom' && tabContent.children().first().length === 0) {
+      await loadCustomLevels();
+    }  
+  });
+  
+  setWindowSize();
   $(".ctlleft")[0] && ($(".ctlleft")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: -1, y: 0, z: 0 }); },false));
   $(".ctlright")[0]&& ($(".ctlright")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 1, y: 0, z: 0 }); },false));
   $(".ctlup")[0]&& ($(".ctlup")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: -1, z: 0 }); },false));
@@ -148,18 +194,134 @@ function loadPremadeLevel(levelnum) {
   levelTag.src=`levels/level${levelnum}.js`;
   $("head")[0].appendChild(levelTag);
 }
-window.loadLevel = function(levelId) { // window level so it can be triggered from the HTML page
+// Level browser functions
+async function loadWorlds() {
+  // Only load world headers first
+  const container = $('#official-levels').empty();
+  
+  for (let worldName in window.worlds) {
+    const displayName = worldName === "???" ? worldName :
+                       worldName.replace(/([A-Z])/g, ' $1').trim(); // Add spaces before capitals
+    
+    const firstLevelId = window.worlds[worldName][0];
+    const worldSection = $(`
+      <div class="level-card">
+        <img src="img/${worldName.toLowerCase().replace(/ /g, '')}.png" alt="${displayName}">
+        <h3>${displayName}</h3>
+        <div class="meta">${window.worlds[worldName].length} levels</div>
+        <button class="play-button" onclick="loadLevel('${firstLevelId}')">Start World</button>
+      </div>
+    `);
+
+    container.append(worldSection);
+  }
+}
+
+async function loadWorldLevels(worldName, container) {
+  const worldLevels = window.worlds[worldName];
+  container.empty();
+  
+  for (const levelId of worldLevels) {
+    try {
+      const levelData = await netService.getGameState(levelId);
+      const levelCard = $(`
+        <div class="level-card" data-id="${levelId}">
+          <h3>${levelData.name || 'Unnamed Level'}</h3>
+          <button class="play-button" onclick="loadLevel('${levelId}')">Play Level</button>
+        </div>
+      `);
+      container.append(levelCard);
+    } catch (e) {
+      console.error(`Failed to load level ${levelId}:`, e);
+    }
+  }
+}
+
+async function loadCustomLevels() {
+  const container = $('#custom-levels').empty();
+  const customLevels = JSON.parse(localStorage.getItem('customLevels') || '[]');
+  
+  if (customLevels.length === 0) {
+    container.append(`
+      <div class="empty-state">
+        <p>No custom levels yet!</p>
+        <a href="levelmaker.html" target="_blank" class="create-level-button">
+          Create Your First Level
+        </a>
+      </div>
+    `);
+    return;
+  }
+
+  const levelsList = $('<div class="levels-list"></div>').css({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    padding: '15px',
+    maxHeight: '400px',
+    overflowY: 'auto'
+  });
+  container.append(levelsList);
+
+  // Load each level
+  let index = 0;
+  for (const level of customLevels) {
+    try {
+      const metadata = await netService.getGameState(level.id);
+      if (!metadata) continue;
+
+      const levelEntry = $(`
+        <div class="level-entry" data-id="${level.id}" style="display: flex; align-items: center;">
+          <span style="min-width: 20px; pointer-events: none;">${++index}.</span>
+          <span style="flex-grow: 1; margin-right: 10px; pointer-events: none;">${metadata.name || level.name}</span>
+          <div class="level-actions" style="display: flex; gap: 5px;">
+            <button class="clone-button" style="padding: 4px 8px;">Edit</button>
+            <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
+          </div>
+        </div>
+      `);
+
+      levelEntry.find('.clone-button').click(() => {
+        window.open(`levelmaker.html?levelid=${level.id}`, '_blank');
+      });
+
+      levelsList.append(levelEntry);
+    } catch (e) {
+      console.error(`Failed to load custom level ${level.id}:`, e);
+    }
+  }
+
+  // Position the levels list
+  const rect = container[0].getBoundingClientRect();
+  levelsContainer.css({
+    position: 'fixed',
+    top: rect.top + 'px',
+    left: (rect.right + 20) + 'px',
+    width: '400px',
+    backgroundColor: 'white',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    borderRadius: '8px',
+    zIndex: 1000
+  }).fadeIn(200);
+}
+
+window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level so it can be triggered from the HTML page
   var refresh = window.location.protocol + "//" + window.location.host + window.location.pathname + '?levelid='+levelId;
   window.history.pushState({ path: refresh }, '', refresh);
   loadAudio(levelId);
-  loadCommunityLevel(levelId);
-  $(".modal").hide().css("opacity",0);
+  loadCommunityLevel(levelId, isRestart, preserveMoves);
+  $(".modal").removeClass("visible");
+  setTimeout(() => $(".modal").hide(), 300);
 }
-async function loadCommunityLevel(communityLevelId) {
+async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
   var comgamestate = await netService.getGameState(communityLevelId);
   window.gamestate = comgamestate;
   comgamestate.levelId = communityLevelId;
-  initGameState(comgamestate);
+  initGameState(comgamestate, isRestart);
+  if (isRestart && preserveMoves !== undefined) {
+    gamestate.moveCount = preserveMoves;
+    updateMoveDisplay();
+  }
   setWindowSize();
   drawGameState();
 
@@ -204,7 +366,7 @@ function changeToText(obj) {
   gamestate.words.push(newObj);
   makeThing($("#gamebody"), newObj, null, null, null, "id"+globalId++, false);
 }
-function removeObj(obj) {
+export function removeObj(obj) {
   for (var i=gamestate.objects.length-1;i>=0;i--) {
     if (gamestate.objects[i] == obj) {
       gamestate.objects.splice(i, 1);
@@ -222,7 +384,7 @@ function removeObj(obj) {
     }
     applyAdjectives();
   }
-  particle(obj, "#733", 10, 0.1);
+  // particle(obj, "#733", 10, 0.1);
 }
 function makeNewObjectFromOld(oldObj, newName, isWord) {
   var newObj = deepClone(oldObj);
@@ -245,6 +407,7 @@ function makeGameState(level) {
 }
 export function drawGameState() {
   $("#levelname").val(gamestate.name).html(gamestate.name);
+  updateMoveDisplay();
   var main = $("#gamebody");
   main[0].innerHTML = "";
   var width = main.width(),
@@ -317,14 +480,49 @@ let moveYouImplFn = moveYouImpl;
 export function changeMoveYou(moveYouFn) {
   moveYouImplFn = moveYouFn;
 }
+export function updateMoveDisplay() {
+  const moves = gamestate.moveCount || 0;
+  const totalWeeks = moves;
+  const money = moves * 5000;
+  
+  let years = Math.floor(totalWeeks / 52);
+  let remainingWeeks = totalWeeks % 52;
+  let months = Math.floor(remainingWeeks / 4);
+  remainingWeeks = remainingWeeks % 4;
+  
+  let timeText = [];
+  if (years > 0) {
+    timeText.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+  }
+  if (months > 0) {
+    timeText.push(`${months} ${months === 1 ? 'month' : 'months'}`);
+  }
+  if (remainingWeeks > 0) {
+    timeText.push(`${remainingWeeks} ${remainingWeeks === 1 ? 'week' : 'weeks'}`);
+  }
+  if (timeText.length === 0) {
+    timeText.push('0 weeks');
+  }
+  
+  const formattedMoney = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(money);
+
+  $("#movecount").html(`${timeText.join(', ')}, ${formattedMoney}`);
+}
+
 export function moveYou(dir) {
   moveYouImplFn(dir);
+  updateMoveDisplay();
 }
 function moveYouImpl(dir) {
   playSfx("walk");
   loadAudio(gamestate.levelId);
   var concatStuff = gamestate.objects.concat(gamestate.words);
   var yous = concatStuff.filter(o => o.you);
+  gamestate.moveCount++;
   undo.push(JSON.stringify(gamestate));
   window.movesToExecute = [];
   if(gamestate.empty.you) {
@@ -503,10 +701,13 @@ export function updateRuleUI() {
     }
   }
 }
-export function initGameState(gs) {
+export function initGameState(gs, isRestart) {
   gs.empty = {};
   gs.size.z = gs.size.z || 1;
   window.savedSolution = gs.solution;
   gs.solution = [];
   gs.group = [];
+  if (!isRestart) {
+    gs.moveCount = 0;
+  }
 }

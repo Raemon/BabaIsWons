@@ -5,7 +5,7 @@
     <title>Baba Level Maker</title>
 </head>
 <body oncontextmenu="return false;">
-  <h3><label for="levelname">Level Name: </label> <input id="levelname" name="levelname">
+  <h3><label for="levelname">Level Name: </label> <input id="levelname" name="levelname" value="Untitled">
     &nbsp;&nbsp; Left Click to Create Object/Word. &nbsp;&nbsp;&nbsp; Right Click to Delete</h3>
   <div id="gamebody">
 
@@ -28,18 +28,27 @@
     &nbsp; &nbsp;
     <div style = "display: inline-block">
       Size (click save to change): X: <input id="xsize" style="width:40px"> Y: <input id="ysize" style="width:40px"> Z: <input id="zsize" style="width:40px"><br>
-    <button id="savecloud"><b>Save Game</b></button><button id="cloneCloud">Clone</button><button id="testbutton">Test</button>
+      <button id="savecloud"><b>Save Game</b></button><button id="cloneCloud">Clone</button><button id="testbutton">Test</button>
+      <button id="browselevels">Browse Levels</button>
     </div>
   </div>
   <div id="ruleUI"> </div>
   <div class="loading" style="display:none;">Loading</div>
-  <div id="mobileControls">
-    <span class="ctlleft">&#8592;</span>
-    <span class="ctlup">&#8593;</span>
-    <span class="ctlright">&#8594;</span>
-    <span class="ctldown">&#8595;</span>
-    <span class="ctlspace">sp</span>
-    <span class="ctlz">Z</span>
+  <div class="modal browse-modal" style="display:none; pointer-events: none;">
+    <div class="modal-content" style="pointer-events: all;">
+      <h2>Browse Levels</h2>
+      <div class="modal-tabs">
+        <button class="tab-button selected" data-tab="official">Official Levels</button>
+        <button class="tab-button" data-tab="custom">Custom Levels</button>
+      </div>
+      <div class="tab-content" id="official-levels">
+        <!-- Official levels loaded dynamically -->
+      </div>
+      <div class="tab-content" id="custom-levels" style="display:none;">
+        <!-- Custom levels loaded dynamically -->
+      </div>
+      <div class="close">X</div>
+    </div>
   </div>
 </body>
 
@@ -51,6 +60,8 @@
 <script src="jquery-3.4.1.min.js"></script>
 <script src="markgen.js"></script>
 <script src="netcode.js"></script>
+<script src="levels/levelids.js"></script>
 <script src="levelmaker.js" type="module"></script>
+<script src="imageLoader.js"></script>
 <script src="particle.js"></script>
 </html>

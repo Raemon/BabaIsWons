@@ -5,87 +5,142 @@ window.netService = {
 
 function PythonAnywhereService() {
     var MASTERURL = location.protocol+"//achamney.pythonanywhere.com/";
+    var loadingCount = 0;
+
+    const updateLoadingState = (show) => {
+        if (show) {
+            loadingCount++;
+            // Only show loading on first request
+            if (loadingCount === 1) {
+                $(".loading:not(.world-loading)").show();
+            }
+        } else {
+            loadingCount--;
+            // Only hide loading when all requests are done
+            if (loadingCount === 0) {
+                $(".loading:not(.world-loading)").hide();
+            }
+        }
+    };
+
     this.setGameState = async function (gamestate, levelId, callback) {
         var cacheBuster = Math.floor(Math.random()*10000);
-        var loadingIcon = $(".loading").show();
-        return $.ajax({
-            url: MASTERURL+"set/"+levelId+"?cb="+cacheBuster,
-            type: "POST",
-            data: JSON.stringify(gamestate),
-            contentType: "application/json; charset=utf-8",
-            success: function (data, textStatus, jqXHR) {
-                loadingIcon.hide();
-                var uri = data["_id"];
-                console.log(uri);
-                if (callback)
-                    callback();
-            }
-        });
+        updateLoadingState(true);
+        try {
+            const result = await $.ajax({
+                url: MASTERURL+"set/"+levelId+"?cb="+cacheBuster,
+                type: "POST",
+                data: JSON.stringify(gamestate),
+                contentType: "application/json; charset=utf-8"
+            });
+            var uri = result["_id"];
+            console.log(uri);
+            if (callback) callback();
+            return result;
+        } finally {
+            updateLoadingState(false);
+        }
     }
+
     this.getGameState = async function(level) {
-        var loadingIcon = $(".loading").show();
         var cacheBuster = Math.floor(Math.random()*10000);
-        var ret = await $.get(MASTERURL+level+"?cb="+cacheBuster);
-        loadingIcon.hide();
-        return JSON.parse(ret);
+        updateLoadingState(true);
+        try {
+            const ret = await $.get(MASTERURL+level+"?cb="+cacheBuster);
+            return JSON.parse(ret);
+        } finally {
+            updateLoadingState(false);
+        }
     }
+
     this.makeNewLevel = async function(gamestate) {
-        var loadingIcon = $(".loading").show();
-        return await $.ajax({
-            url: MASTERURL+"make",
-            type: "POST",
-            data: JSON.stringify(gamestate),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                loadingIcon.hide();
-                var uri = data["_id"];
-                console.log(uri);
-            }
-        });
+        updateLoadingState(true);
+        try {
+            const result = await $.ajax({
+                url: MASTERURL+"make",
+                type: "POST",
+                data: JSON.stringify(gamestate),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            });
+            var uri = result["_id"];
+            console.log(uri);
+            return result;
+        } finally {
+            updateLoadingState(false);
+        }
     }
 }
 function JsonBoxyService() {
     var MASTERURL = "https://jsonboxy.herokuapp.com/box_048253cc19be56e86f59/";
+    var loadingCount = 0; // Added loadingCount
+
+    const updateLoadingState = (show) => { // Added updateLoadingState function
+        if (show) {
+            loadingCount++;
+            // Only show loading on first request
+            if (loadingCount === 1) {
+                $(".loading:not(.world-loading)").show();
+            }
+        } else {
+            loadingCount--;
+            // Only hide loading when all requests are done
+            if (loadingCount === 0) {
+                $(".loading:not(.world-loading)").hide();
+            }
+        }
+    };
+
     this.setGameState = async function (gamestate, levelId, callback) {
         var cacheBuster = Math.floor(Math.random()*10000);
-        var loadingIcon = $(".loading").show();
-        return await $.ajax({
-            url: MASTERURL+levelId+"?cb="+cacheBuster,
-            type: "PUT",
-            data: JSON.stringify(gamestate),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                loadingIcon.hide();
-                var uri = data["_id"];
-                console.log(uri);
-                if (callback)
-                    callback();
-            }
-        });
+        updateLoadingState(true); // Use updateLoadingState
+        try {
+            return await $.ajax({
+                url: MASTERURL+levelId+"?cb="+cacheBuster,
+                type: "PUT",
+                data: JSON.stringify(gamestate),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, textStatus, jqXHR) {
+                    updateLoadingState(false); // Use updateLoadingState
+                    var uri = data["_id"];
+                    console.log(uri);
+                    if (callback)
+                        callback();
+                }
+            });
+        } finally {
+            updateLoadingState(false); // Use updateLoadingState in finally block to ensure loading hides even on error
+        }
     }
     this.getGameState = async function(level) {
-        var loadingIcon = $(".loading").show();
         var cacheBuster = Math.floor(Math.random()*10000);
-        var ret = await $.get(MASTERURL+level+"?cb="+cacheBuster);
-        loadingIcon.hide();
-        return ret;
+        updateLoadingState(true); // Use updateLoadingState
+        try {
+            var ret = await $.get(MASTERURL+level+"?cb="+cacheBuster);
+            return JSON.parse(ret); // Parse JSON response
+        } finally {
+            updateLoadingState(false); // Use updateLoadingState in finally block
+        }
     }
     this.makeNewLevel = async function(gamestate) {
-        var loadingIcon = $(".loading").show();
-        return await $.ajax({
-            url: MASTERURL,
-            type: "POST",
-            data: JSON.stringify(gamestate),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                loadingIcon.hide();
-                var uri = data["_id"];
-                console.log(uri);
-            }
-        });
+        updateLoadingState(true); // Use updateLoadingState
+        try {
+            return await $.ajax({
+                url: MASTERURL,
+                type: "POST",
+                data: JSON.stringify(gamestate),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, textStatus, jqXHR) {
+                    updateLoadingState(false); // Use updateLoadingState
+                    var uri = data["_id"];
+                    console.log(uri);
+                }
+            });
+        } finally {
+            updateLoadingState(false); // Use updateLoadingState in finally block
+        }
     }
 }
 
