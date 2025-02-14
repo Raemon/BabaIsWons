@@ -1,0 +1,190 @@
+/* Custom Properties */
+:root {
+  /* Colors */
+  --game-bg: black;
+  --grid-line: #222;
+  --text-color: #999;
+  --control-text: #666;
+  
+  /* Sizes */
+  --game-word-size: 2.2vh;
+  --particle-size: 2.0vw;
+  
+  /* Animations */
+  --movement-duration: 0.1s;
+  --float-duration: 3s;
+  
+  /* Sprite positions */
+  --sprite-pos-right: 0;
+  --sprite-pos-left: 34%;
+  --sprite-pos-up: 69%;
+  --sprite-pos-down: 103%;
+}
+
+/* Base Game Layout */
+body {
+  padding: 1vw;
+  padding-top: 5px;
+  position: relative;
+  height: 80%;
+  overflow: hidden;
+}
+
+#gamebody {
+  height: 100%;
+  background-color: var(--game-bg);
+  position: relative;
+}
+
+/* Game Objects Base */
+.block {
+  position: absolute;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Game Text */
+.gameword {
+  font-size: var(--game-word-size);
+  color: var(--text-color);
+  font-family: system-ui;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  word-break: break-all;
+  line-height: 0.8;
+}
+
+/* Directional Sprites */
+.baba, .belt, .ghost, .keke, .bolt {
+  background-size: 100% 400%;
+  transition-property: top, left;
+  transition-duration: var(--movement-duration);
+  transition-delay: 0;
+}
+
+/* Add animation support for GIF sprites */
+.animated {
+  image-rendering: auto !important;
+  background-size: 100% 100% !important;
+}
+
+/* Directional Classes */
+.baba.r { background-position-y: var(--sprite-pos-right); }
+.baba.l { background-position-y: var(--sprite-pos-left); }
+.baba.u { background-position-y: var(--sprite-pos-up); }
+.baba.d { background-position-y: var(--sprite-pos-down); }
+
+.keke.r { background-position-y: var(--sprite-pos-right); }
+.keke.l { background-position-y: var(--sprite-pos-left); }
+.keke.u { background-position-y: var(--sprite-pos-up); }
+.keke.d { background-position-y: var(--sprite-pos-down); }
+
+.bolt.r { background-position-y: var(--sprite-pos-right); }
+.bolt.l { background-position-y: var(--sprite-pos-left); }
+.bolt.u { background-position-y: var(--sprite-pos-up); }
+.bolt.d { background-position-y: var(--sprite-pos-down); }
+
+.belt.r { background-position-y: var(--sprite-pos-right); }
+.belt.l { background-position-y: var(--sprite-pos-left); }
+.belt.u { background-position-y: var(--sprite-pos-up); }
+.belt.d { background-position-y: 100%; }
+
+.ghost.r { background-position-y: var(--sprite-pos-right); }
+.ghost.l { background-position-y: var(--sprite-pos-left); }
+.ghost.u { background-position-y: 67%; }
+.ghost.d { background-position-y: 100%; }
+
+/* Game UI Elements */
+.particle {
+  position: absolute;
+  font-size: var(--particle-size);
+  font-weight: 700;
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+.tier {
+  position: absolute;
+  pointer-events: none;
+  background-color: white;
+  opacity: 0.05;
+}
+
+.controlInfo {
+  pointer-events: none;
+  position: absolute;
+  margin-top: -30px;
+  margin-left: 130px;
+  color: black;
+  z-index: 1;
+}
+
+/* Grid System */
+.gridline {
+  pointer-events: none;
+  position: absolute;
+  outline: 1px solid var(--grid-line);
+  z-index: 1;
+}
+
+.grid-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* Game Object Specific */
+.baba {
+  z-index: 1;
+}
+
+/* Animations */
+.float {
+  animation: floatAnim var(--float-duration) infinite;
+}
+
+@keyframes floatAnim {
+  0% { margin-top: 0; }
+  50% { margin-top: -10px; }
+  100% { margin-top: 0; }
+}
+
+/* Mobile Controls */
+#mobileControls {
+  display: none;
+}
+
+@media screen and (max-width: 700px) {
+  #mobileControls {
+    display: inline-block;
+    position: relative;
+    top: 100px;
+  }
+  
+  #mobileControls span {
+    display: inline-block;
+    position: absolute;
+    width: 15vw;
+    height: 15vw;
+    border: 1px solid #555;
+    font-size: 12vw;
+    margin: 5px;
+  }
+  
+  .ctlup { top: -15vw; left: 15vw; }
+  .ctlright { left: 30vw; }
+  .ctldown { top: 15vw; left: 15vw; }
+  .ctlz { left: 45vw; }
+  .ctlspace { left: 60vw; }
+  
+  #ruleUI { display: none; }
+}

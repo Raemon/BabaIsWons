@@ -1,24 +1,31 @@
 <html>
 <head>
-    <link type="text/css" href="style.css" rel="stylesheet" />
+    <link type="text/css" href="game.css" rel="stylesheet" />
+    <link type="text/css" href="ui.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="img/favicon.png">
     <title>Baba Is 3D</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
 </head>
 <body>
-  <div style="text-align: center; margin: 10px 0; position: relative;">
-    <a href="" id="prevlevellink" style="float: left">Previous Level</a>
-    <span style="display: inline-block; white-space: nowrap; text-align: start; min-width: 30vw">Baba Is 3D : <span id="levelname"></span></span>
-    <a href="" id="nextlevellink" style="float: right">Next Level</a>
+  <div class="navigation-bar">
+    <a href="" id="prevlevellink" class="nav-link nav-prev">Previous Level</a>
+    <span class="level-title">Baba Is 3D : <span id="levelname"></span></span>
+    <a href="" id="nextlevellink" class="nav-link nav-next">Next Level</a>
   </div>
+  
   <div id="gamebody">
   </div>
+  
   <div id="costs">  
     Research Costs: <span id="movecount">0 weeks, $0</span>
   </div>
+  
   <button id="worldselect">Select World</button>
-  <audio id="audio" autoplay loop controls><source src="music/overworld.mp3" type="audio/mpeg"></audio><br/>
+  
+  <audio id="audio" autoplay loop controls>
+    <source src="music/overworld.mp3" type="audio/mpeg">
+  </audio>
+  
   <div id="mobileControls">
     <span class="ctlleft">&#8592;</span>
     <span class="ctlup">&#8593;</span>
@@ -27,19 +34,24 @@
     <span class="ctlspace">sp</span>
     <span class="ctlz">Z</span>
   </div>
-  <div id="ruleUI"> </div>
-  <div class="loading" style="display:none;">Loading</div>
-  <div class="modal browse-modal" style="display:none; pointer-events: none;">
-    <div class="modal-content" style="pointer-events: all;">
+  
+  <div id="ruleUI"></div>
+  
+  <div class="loading">Loading</div>
+  
+  <div class="modal browse-modal">
+    <div class="modal-content">
       <h2>Select World</h2>
       <div class="modal-tabs">
         <button class="tab-button selected" data-tab="official">Official Worlds</button>
         <button class="tab-button" data-tab="custom">Custom Levels</button>
       </div>
       <div class="tab-content" id="official-levels">
-        <!-- Official worlds and their first levels -->
         <div class="world-grid">
-          <span onclick="loadLevel('61e1d0fd7dd2580015d2a044')"><h3>Overworld</h3><img src="img/overworld.png" /></span>
+          <span onclick="loadLevel('61e1d0fd7dd2580015d2a044')">
+            <h3>Overworld</h3>
+            <img src="img/overworld.png" alt="Overworld" />
+          </span>
           <!-- <span onclick="loadLevel('61e1d1cd7dd2580015d2a04c')"><h3>The Lake</h3><img src="img/thelake.png" /></span>
           <span onclick="loadLevel('61dc9d364f80c300151cf338')"><h3>Solitary Island</h3><img src="img/solitaryisland.png" /></span>
           <span onclick="loadLevel('61e20ae38bab1e0015f357c3')"><h3>Temple Ruins</h3><img src="img/templeruins.png" /></span>
@@ -55,29 +67,29 @@
           <span onclick="loadLevel('620ef95e07e3c300151e5470')"><h3>Baba Is 3D</h3><img src="img/threed.png" /></span> -->
         </div>
       </div>
-      <div class="tab-content" id="custom-levels" style="display:none;">
-        <span onclick="loadLevel('70b15d82-eaa9-11ef-a278-0afffd82ddb9')"><h3>Level 1</h3><img src="img/overworld.png" /></span>
-        <!-- Custom levels loaded dynamically if this div is empty -->
+      <div class="tab-content" id="custom-levels">
+        <!-- Custom levels will be loaded dynamically from config.js -->
       </div>
-      <div class="close">X</div>
+      <button class="close">X</button>
     </div>
   </div>
 
-  <audio id="walk0" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
-  <audio id="walk1" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
-  <audio id="walk2" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
-  <audio id="walk3" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
-  <audio id="walk4" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
-  <audio id="walk5" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
-  <audio id="win0" class="winsnd"><source src="music/win.mp3" type="audio/mpeg"></audio>
+  <!-- Audio Elements -->
+  <div class="audio-container">
+    <audio id="walk0" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk1" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk2" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk3" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk4" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="walk5" class="walksnd"><source src="music/walk.mp3" type="audio/mpeg"></audio>
+    <audio id="win0" class="winsnd"><source src="music/win.mp3" type="audio/mpeg"></audio>
+  </div>
 </body>
 
-<script>window.config={
-  playSnd:true,
-  winForward:true,
-  particle:true,
-  ruleUI:true
-}</script>
+<script type="module">
+  import config from './config.js';
+  window.config = config; // Make config available globally for existing code
+</script>
 <script src="jquery-3.4.1.min.js"></script>
 <script src="markgen.js"></script>
 <script src="netcode.js"></script>
@@ -85,4 +97,49 @@
 <script src="levels/levelids.js"></script>
 <script src="imageLoader.js"></script>
 <script src="game.js" type="module"></script>
+
+<script type="module">
+  // Custom levels rendering
+  import config from './config.js';
+  
+  window.renderCustomLevels = function() {
+    const container = $('#custom-levels');
+    const customLevels = config.customLevels;
+    
+    if (customLevels.length === 0) {
+      container.html(`
+        <div class="empty-state">
+          <p>No custom levels yet!</p>
+          <a href="levelmaker.html" target="_blank" class="create-level-button">
+            Create Your First Level
+          </a>
+        </div>
+      `);
+      return;
+    }
+    
+    const levelsList = $('<div class="levels-list"></div>');
+    customLevels.forEach((level, index) => {
+      const levelEntry = $(`
+        <div class="level-entry" data-id="${level.id}">
+          <span class="level-number">${index + 1}.</span>
+          <span class="level-name">${level.name}</span>
+          <div class="level-actions">
+            <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
+            <button class="edit-button" onclick="window.open('levelmaker.html?levelid=${level.id}', '_blank')">Edit</button>
+          </div>
+          ${level.description ? `<div class="level-description">${level.description}</div>` : ''}
+        </div>
+      `);
+      levelsList.append(levelEntry);
+    });
+    
+    container.empty().append(levelsList);
+  };
+  
+  // Update the tab click handler to use the new render function
+  $('.tab-button[data-tab="custom"]').click(function() {
+    window.renderCustomLevels();
+  });
+</script>
 </html>
