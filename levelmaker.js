@@ -650,6 +650,7 @@ async function savecloud() {
     const urlParams = new URLSearchParams(window.location.search);
     const communityLevelId = urlParams.get("levelid");
     let newId;
+    console.log(JSON.stringify(window.gamestate));
 
     if (!communityLevelId) {
       const ret = await netService.makeNewLevel(window.gamestate);

@@ -460,3 +460,9 @@ button.selected {
   #ruleUI { display: none; }
   .modal span img { width: 20vw; }
 }
+
+.main-area {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
