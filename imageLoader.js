@@ -20,7 +20,7 @@ const imgFiles = {
         'meltword', 'moon', 'moonword', 'moreword', 'mountaintop', 'moveword', 'mushroom',
         'mushroomword', 'openword', 'overworld', 'pullword', 'pushword', 'question',
         'redword', 'rightword', 'rock', 'rockettrip', 'rockword', 'rose', 'rosered',
-        'roseredword', 'roseword', 'shiftword', 'shutword', 'sinkword', 'skulld',
+        'roseredword', 'roseword', 'shiftword', 'shutword', 'sinkword', 'skull',
         'skullword', 'solitaryisland', 'star', 'starword', 'stopword', 'teleword',
         'templeruins', 'thelake', 'threed', 'tree', 'treeword', 'upword',
         'volcaniccavern', 'wall', 'wallword', 'water', 'waterword', 'weakword',
