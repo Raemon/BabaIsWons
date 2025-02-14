@@ -6,7 +6,7 @@ const imgFiles = {
         'hotword', 'iceword', 'isword', 'jelly', 'jellyword', 'keke', 'kekeword',
         'key', 'keyword', 'lava', 'lavaword', 'love', 'loveword', 'meltword', 'moon',
         'moonword', 'openword', 'pushword', 'rock', 'rockword', 'rose', 'roseword',
-        'shutword', 'sinkword', 'star', 'starword', 'stopword', 'wall', 'wallword',
+        'shutword', 'sinkword', 'skull', 'skullword', 'star', 'starword', 'stopword', 'wall', 'wallword',
         'water', 'waterword', 'wind', 'winword', 'youword'
     ],
     png: [
