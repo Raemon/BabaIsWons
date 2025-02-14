@@ -30,11 +30,20 @@ window.onload = async function () {
   var urlParams = new URLSearchParams(window.location.search);
   var levelnum = Math.floor(urlParams.get("level"));
   var communityLevelId = urlParams.get("levelid");
+  
+  // Only show world selector on game page (not levelmaker)
+  const isLevelMaker = window.location.pathname.includes('levelmaker');
+  
   if (levelnum) {
     loadPremadeLevel(levelnum);
   } else if (communityLevelId) {
     loadCommunityLevel(communityLevelId);
     levelnum = 1;
+  } else if (!isLevelMaker) {
+    // Automatically show world selector if no level is specified and not in levelmaker
+    $(".modal").show();
+    setTimeout(() => $(".modal").addClass("visible"), 10);
+    await loadWorlds();
   }
   
   $("#nextlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, 1)); e.preventDefault();return false;});
@@ -60,10 +69,13 @@ window.onload = async function () {
     const tab = $(this).data('tab');
     const tabContent = $(`#${tab}-levels`);
     tabContent.show();
+
+    console.log(tab);
+    console.log(tabContent.children().first())
     
-    if (tab === 'custom' && tabContent.is(':empty')) {
+    if (tab === 'custom' && tabContent.children().first().length === 0) {
       await loadCustomLevels();
-    }
+    }  
   });
   
   setWindowSize();
@@ -241,26 +253,56 @@ async function loadCustomLevels() {
     return;
   }
 
-  // Create a grid similar to worlds
-  const grid = $('<div class="level-grid"></div>');
-  container.append(grid);
+  const levelsList = $('<div class="levels-list"></div>').css({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    padding: '15px',
+    maxHeight: '400px',
+    overflowY: 'auto'
+  });
+  container.append(levelsList);
 
+  // Load each level
+  let index = 0;
   for (const level of customLevels) {
     try {
-      const levelData = await netService.getGameState(level.id);
-      const card = $(`
-        <div class="level-card" data-id="${level.id}">
-          <h3>${level.name}</h3>
-          <div class="meta">Created: ${new Date(level.created).toLocaleDateString()}</div>
-          <button class="play-button" onclick="loadLevel('${level.id}')">Play Level</button>
-          <a href="levelmaker.html?levelid=${level.id}" target="_blank" class="edit-button">Edit</a>
+      const metadata = await netService.getGameState(level.id);
+      if (!metadata) continue;
+
+      const levelEntry = $(`
+        <div class="level-entry" data-id="${level.id}" style="display: flex; align-items: center;">
+          <span style="min-width: 20px; pointer-events: none;">${++index}.</span>
+          <span style="flex-grow: 1; margin-right: 10px; pointer-events: none;">${metadata.name || level.name}</span>
+          <div class="level-actions" style="display: flex; gap: 5px;">
+            <button class="clone-button" style="padding: 4px 8px;">Edit</button>
+            <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
+          </div>
         </div>
       `);
-      grid.append(card);
+
+      levelEntry.find('.clone-button').click(() => {
+        window.open(`levelmaker.html?levelid=${level.id}`, '_blank');
+      });
+
+      levelsList.append(levelEntry);
     } catch (e) {
       console.error(`Failed to load custom level ${level.id}:`, e);
     }
   }
+
+  // Position the levels list
+  const rect = container[0].getBoundingClientRect();
+  levelsContainer.css({
+    position: 'fixed',
+    top: rect.top + 'px',
+    left: (rect.right + 20) + 'px',
+    width: '400px',
+    backgroundColor: 'white',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    borderRadius: '8px',
+    zIndex: 1000
+  }).fadeIn(200);
 }
 
 window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level so it can be triggered from the HTML page

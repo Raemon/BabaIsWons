@@ -11,8 +11,64 @@ const defaultObj = "wall";
 window.makemode = "object";
 window.globalId = 1;
 
-// Level metadata cache
+// Caches and loading queue
 const levelMetadataCache = new Map();
+const worldLevelsCache = new Map();
+let loadingQueue = [];
+let isProcessingQueue = false;
+
+// Cache management functions
+async function preloadWorldLevels(worldName) {
+  if (worldLevelsCache.has(worldName)) return;
+  
+  const worldLevels = window.worlds[worldName];
+  const levels = [];
+  
+  for (const levelId of worldLevels) {
+    try {
+      const [metadata, levelData] = await Promise.all([
+        getLevelMetadata(levelId),
+        netService.getGameState(levelId)
+      ]);
+      
+      if (metadata && levelData) {
+        levels.push({ id: levelId, metadata, data: levelData });
+      }
+    } catch (e) {
+      console.error(`Failed to preload level ${levelId}:`, e);
+    }
+  }
+  
+  worldLevelsCache.set(worldName, levels);
+}
+
+function queueWorldForLoading(worldName, priority = false) {
+  if (priority) {
+    // Remove if already in queue and add to front
+    loadingQueue = loadingQueue.filter(w => w !== worldName);
+    loadingQueue.unshift(worldName);
+  } else if (!loadingQueue.includes(worldName)) {
+    loadingQueue.push(worldName);
+  }
+  
+  // Start processing queue if not already running
+  if (!isProcessingQueue) {
+    processLoadingQueue();
+  }
+}
+
+async function processLoadingQueue() {
+  if (isProcessingQueue || loadingQueue.length === 0) return;
+  
+  isProcessingQueue = true;
+  
+  while (loadingQueue.length > 0) {
+    const worldName = loadingQueue.shift();
+    await preloadWorldLevels(worldName);
+  }
+  
+  isProcessingQueue = false;
+}
 
 function showFeedback(message, isError = false) {
   const feedback = $('<div class="feedback"></div>').text(message);
@@ -51,25 +107,51 @@ async function getLevelMetadata(levelId) {
 }
 
 async function createWorldPreview(worldName) {
+  // Create world preview container
   const container = $(`
     <div class="world-section">
       <h3>${worldName}</h3>
       <div class="world-preview">
         <img src="img/${worldName.toLowerCase().replace(/ /g, '')}.png" alt="${worldName}">
-        <span>${window.worlds[worldName].length} levels</span>
+        <span class="number-of-levels-text">${window.worlds[worldName].length} levels</span>
       </div>
-      <div class="world-levels" style="display:none;"></div>
     </div>
   `);
 
-  container.find('.world-preview').click(async function() {
-    const levelsContainer = container.find('.world-levels');
-    if (levelsContainer.is(':empty')) {
-      levelsContainer.html('<div class="loading-indicator">Loading levels...</div>');
-      levelsContainer.show();
-      await loadWorldLevels(worldName, levelsContainer);
-    } else {
-      levelsContainer.toggle();
+  // Create a separate popup for levels
+  const levelsPopup = $(`
+    <div class="world-levels" style="display:none; position: fixed; background: white; width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000;">
+      <div class="world-levels-content">
+        <div class="loading world-loading" style="padding: 20px; text-align: center;">Loading levels...</div>
+      </div>
+    </div>
+  `).appendTo('body');
+
+  // Start loading levels immediately
+  loadWorldLevels(worldName, levelsPopup.find('.world-levels-content'));
+
+  // Click handler for world preview
+  container.find('.world-preview').click(function(e) {
+    e.stopPropagation();
+    
+    // Hide all other popups
+    $('.world-levels').not(levelsPopup).hide();
+    
+    // Position popup next to world preview
+    const previewRect = this.getBoundingClientRect();
+    levelsPopup.css({
+      top: previewRect.top + window.scrollY + 'px',
+      left: (previewRect.right + 20) + 'px'
+    });
+
+    // Show/hide popup
+    levelsPopup.fadeToggle(200);
+  });
+
+  // Click outside to close popup
+  $(document).on('click', function(e) {
+    if (!$(e.target).closest('.world-levels, .world-preview').length) {
+      levelsPopup.fadeOut(200);
     }
   });
 
@@ -77,47 +159,125 @@ async function createWorldPreview(worldName) {
 }
 
 async function loadWorldLevels(worldName, container) {
-  const worldLevels = window.worlds[worldName];
-  container.empty();
-  
-  for (const levelId of worldLevels) {
-    const metadata = await getLevelMetadata(levelId);
-    if (!metadata) continue;
+  // Create a levels list container
+  const levelsList = $('<div class="levels-list"></div>').css({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    padding: '15px',
+    maxHeight: '400px',
+    overflowY: 'auto'
+  });
+  container.empty().append(levelsList);
 
-    const levelCard = $(`
-      <div class="level-card" data-id="${levelId}">
-        <h3>${metadata.name}</h3>
-        <button class="clone-button">Clone & Edit</button>
-        <button class="play-button">Play</button>
+  // Function to create a level entry
+  const createLevelEntry = (levelData, metadata, index) => {
+    const levelEntry = $(`
+      <div class="level-entry" data-id="${metadata.id}" style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 8px;">
+        <span style="min-width: 30px; color: #666;">${index + 1}.</span>
+        <span style="flex-grow: 1;">${metadata.name}</span>
+        <div class="level-actions" style="display: flex; gap: 5px;">
+          <button class="clone-button" style="padding: 4px 8px;">Clone & Edit</button>
+          <button class="play-button" style="padding: 4px 8px;">Play</button>
+        </div>
       </div>
     `);
 
-    levelCard.find('.clone-button').click(async (e) => {
+    levelEntry.find('.clone-button').click(async (e) => {
       e.stopPropagation();
-      const levelData = await netService.getGameState(levelId);
       await cloneAndEditLevel(levelData);
     });
 
-    levelCard.find('.play-button').click((e) => {
+    levelEntry.find('.play-button').click((e) => {
       e.stopPropagation();
       window.open(
-        window.location.protocol + "//" + window.location.hostname + 
-        (window.location.port ? ':' + window.location.port: '') + 
-        "?levelid=" + levelId,
+        window.location.protocol + "//" + window.location.hostname +
+        (window.location.port ? ':' + window.location.port: '') +
+        "?levelid=" + metadata.id,
         '_blank'
       );
     });
 
-    container.append(levelCard);
+    return levelEntry;
+  };
+
+  // Try to use cached data first
+  if (worldLevelsCache.has(worldName)) {
+    const cachedLevels = worldLevelsCache.get(worldName);
+    cachedLevels.forEach((level, index) => {
+      levelsList.append(createLevelEntry(level.data, level.metadata, index));
+    });
+    return;
   }
+
+  // Otherwise load all levels in parallel
+  const worldLevels = window.worlds[worldName];
+  const loadedLevels = new Array(worldLevels.length);
+  
+  // Create promises for all level loads
+  const loadPromises = worldLevels.map(async (levelId, index) => {
+    try {
+      const [metadata, levelData] = await Promise.all([
+        getLevelMetadata(levelId),
+        netService.getGameState(levelId)
+      ]);
+      
+      if (!metadata || !levelData) return;
+      
+      // Store in array at correct position
+      loadedLevels[index] = { data: levelData, metadata: { ...metadata, id: levelId } };
+      
+      // Add to UI if container still exists
+      if (container.closest('body').length) {
+        // Find correct position to insert
+        const entry = createLevelEntry(levelData, metadata, index);
+        const existingEntries = levelsList.children();
+        
+        if (index < existingEntries.length) {
+          $(existingEntries[index]).before(entry);
+        } else {
+          levelsList.append(entry);
+        }
+      }
+    } catch (e) {
+      console.error(`Failed to load level ${levelId}:`, e);
+    }
+  });
+
+  // Cache levels once all are loaded
+  Promise.all(loadPromises).then(() => {
+    const validLevels = loadedLevels.filter(l => l);
+    if (validLevels.length > 0) {
+      worldLevelsCache.set(worldName, validLevels);
+    }
+  });
+
+  // Position the container next to the world preview
+  const worldPreview = container.closest('.world-section').find('.world-preview');
+  const worldRect = worldPreview[0].getBoundingClientRect();
+  
+  container.css({
+    position: 'fixed',
+    top: worldRect.top + 'px',
+    left: (worldRect.right + 20) + 'px',
+    width: '400px',
+    backgroundColor: 'white',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    borderRadius: '8px',
+    zIndex: 1000
+  });
 }
 
 async function loadOfficialLevels() {
   const container = $('#official-levels').empty();
   
+  // Create and append world sections first
   for (let worldName in window.worlds) {
     const worldSection = await createWorldPreview(worldName);
     container.append(worldSection);
+    
+    // Queue this world for background loading
+    queueWorldForLoading(worldName);
   }
 }
 

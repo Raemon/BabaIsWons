@@ -278,13 +278,18 @@ body {
 /* World sections and level cards */
 /* World grid in game */
 #official-levels {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   padding: 20px;
+  justify-content: flex-start;
 }
 
 #official-levels .level-card {
+  flex: 0 0 calc(20% - 16px); /* 5 items per row, accounting for gap */
+  min-width: 150px; /* Minimum size */
+  max-width: 250px; /* Maximum size */
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -294,6 +299,24 @@ body {
   border-radius: 5px;
   background: white;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+/* Add more spacing between worlds */
+#official-levels .world-section {
+  margin-bottom: 30px;
+  position: relative;
+  /* width: 100%; */
+}
+
+#official-levels .world-preview {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.number-of-levels-text {
+  pointer-events: none;
 }
 
 #official-levels .level-card:hover {
@@ -319,7 +342,7 @@ body {
   margin-bottom: 10px;
 }
 
-#official-levels .play-button {
+.play-button {
   background: #4CAF50;
   color: white;
   border: none;
@@ -330,8 +353,22 @@ body {
   transition: filter 0.2s;
 }
 
-#official-levels .play-button:hover {
-  filter: brightness(1.1);
+.clone-button,
+.edit-button {
+  background: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: filter 0.2s;
+}
+
+.play-button:hover,
+.clone-button:hover,
+.edit-button:hover {
+  filter: brightness(1.2);
 }
 
 /* Level cards */
@@ -360,17 +397,6 @@ body {
   cursor: pointer;
   font-weight: bold;
   transition: filter 0.2s;
-}
-
-.level-card .play-button {
-  background: #4CAF50;
-  color: white;
-}
-
-.level-card .clone-button,
-.level-card .edit-button {
-  background: #2196F3;
-  color: white;
 }
 
 .level-card button:hover {
