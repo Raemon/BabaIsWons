@@ -3,7 +3,7 @@ const imgFiles = {
     gif: [
         'baba', 'babaword', 'bolt', 'crab', 'crabword', 'defeatword', 'door', 'doorword',
         'flag', 'flagword', 'floatword', 'ghost', 'ghostword', 'grass', 'grassword',
-        'hotword', 'iceword', 'isword', 'jelly', 'jellyword', 'keke', 'kekeword',
+        'hotword', 'iceword', 'isword', 'andword', 'jelly', 'jellyword', 'keke', 'kekeword',
         'key', 'keyword', 'lava', 'lavaword', 'love', 'loveword', 'meltword', 'moon',
         'moonword', 'openword', 'pushword', 'rock', 'rockword', 'rose', 'roseword',
         'shutword', 'sinkword', 'skull', 'skullword', 'star', 'starword', 'stopword', 'wall', 'wallword',
