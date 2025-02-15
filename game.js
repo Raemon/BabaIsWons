@@ -461,7 +461,7 @@ function makeThing(parent, thing, gridx, gridy, gridz, globalId, isObject) {
   objdiv.id = globalId;
   thing.id = globalId;
   if (!isObject) {
-    objdiv.innerHTML = thing.name;
+    objdiv.innerHTML = "" // Ray: I wasn't sure what this was for, but it rendered uglily
     objdiv.style["font-size"] = fontMapping(gridx);
   }
   objdiv.gamedata = thing;
