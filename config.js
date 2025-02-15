@@ -13,16 +13,10 @@ const config = {
       description: 'For People who have never played'
     },
     {
-      id: '61dc9d364f80c300151cf338',
-      name: 'Hall of Doors',
-      description: 'Tier 2'
-    },
-    {
       id: "20b5a734-eb3a-11ef-9a40-0afffd82ddb9",
-      name: "Untitled",
+      name: "Hall of Doors",
       description: "Custom level"
-    },
-    
+    }
   ]
 };
 
