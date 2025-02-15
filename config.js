@@ -16,6 +16,11 @@ const config = {
       id: "20b5a734-eb3a-11ef-9a40-0afffd82ddb9",
       name: "Hall of Doors",
       description: "Custom level"
+    },
+    {
+      id: "817a66cc-eb80-11ef-9a40-0afffd82ddb9",
+      name: "The River",
+      description: "Custom level"
     }
   ]
 };
