@@ -86,6 +86,71 @@ function showFeedback(message, isError = false) {
   setTimeout(() => feedback.fadeOut('slow', function() { $(this).remove(); }), 3000);
 }
 
+function showConfigPopup(levelId, levelName) {
+  const configEntry = {
+    id: levelId,
+    name: levelName,
+    description: 'Custom level' // Optional default description
+  };
+  
+  let configString = "{\n";
+  for (const key in configEntry) {
+    configString += `      ${key}: `;
+    const value = configEntry[key];
+    if (typeof value === 'string') {
+      configString += `"${value}"`;
+    } else {
+      configString += `${value}`;
+    }
+    configString += ",\n";
+  }
+  configString = configString.slice(0, -2) + "\n    }";
+  configString += ",\n    ";
+
+  const popup = $(`
+    <div class="modal config-popup visible">
+      <div class="modal-content" style="max-width: 600px;">
+        <span class="close">×</span>
+        <h3 style="margin-top: 0;">Level saved successfully!</h3>
+        <div style="margin: 20px 0;">
+          <p>Add this to your config.js file:</p>
+          <pre style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 5px; margin: 10px 0; white-space: pre-wrap;">${configString}</pre>
+          <button class="copy-button play-button">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  `);
+
+  // Add to body
+  $('body').append(popup);
+
+  // Setup copy button
+  popup.find('.copy-button').click(async () => {
+    try {
+      await navigator.clipboard.writeText(configString);
+      const btn = popup.find('.copy-button');
+      btn.text('Copied!');
+      setTimeout(() => btn.text('Copy to Clipboard'), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  });
+
+  // Setup close button
+  popup.find('.close').click(() => {
+    popup.removeClass('visible');
+    setTimeout(() => popup.remove(), 300);
+  });
+
+  // Auto dismiss after 10 seconds
+  setTimeout(() => {
+    if (popup.hasClass('visible')) {
+      popup.removeClass('visible');
+      setTimeout(() => popup.remove(), 300);
+    }
+  }, 10000);
+}
+
 async function getLevelMetadata(levelId) {
   if (levelMetadataCache.has(levelId)) {
     return levelMetadataCache.get(levelId);
@@ -650,7 +715,6 @@ async function savecloud() {
     const urlParams = new URLSearchParams(window.location.search);
     const communityLevelId = urlParams.get("levelid");
     let newId;
-    console.log(JSON.stringify(window.gamestate));
 
     if (!communityLevelId) {
       const ret = await netService.makeNewLevel(window.gamestate);
@@ -667,7 +731,7 @@ async function savecloud() {
       window.location.pathname + "?levelid=" + newId
     );
     gamestate.levelId = newId;
-    showFeedback('Level saved successfully!');
+    showConfigPopup(newId, levelName);
 
   } catch (e) {
     console.error('Failed to save level:', e);

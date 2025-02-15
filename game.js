@@ -40,10 +40,9 @@ window.onload = async function () {
     loadCommunityLevel(communityLevelId);
     levelnum = 1;
   } else if (!isLevelMaker) {
-    // Automatically show world selector if no level is specified and not in levelmaker
-    $(".modal").show();
-    setTimeout(() => $(".modal").addClass("visible"), 10);
-    await loadWorlds();
+    // Redirect to home page if no level is specified
+    window.location.href = "home.html";
+    return;
   }
   
   $("#nextlevellink").click(e=>{loadLevel(findLevelByIndex(gamestate.levelId, 1)); e.preventDefault();return false;});
@@ -103,15 +102,19 @@ window.onload = async function () {
 window.pressKey = function(event) {
   gamestate.solution.push(event.keyCode);
   if (event.keyCode == 37) {
+    event.preventDefault();
     moveYou({ x: -1, y: 0, z: 0 });
   }
   else if (event.keyCode == 39) {
+    event.preventDefault();
     moveYou({ x: 1, y: 0, z: 0 });
   }
   else if (event.keyCode == 38) {
+    event.preventDefault();
     moveYou({ x: 0, y: -1, z: 0 });
   }
   else if (event.keyCode == 40) {
+    event.preventDefault();
     moveYou({ x: 0, y: 1, z: 0 });
   } else if (event.keyCode == 87) {
     moveYou({ x: 0, y: 0, z: 1 });
@@ -238,71 +241,71 @@ async function loadWorldLevels(worldName, container) {
 }
 
 async function loadCustomLevels() {
-  const container = $('#custom-levels').empty();
-  const customLevels = JSON.parse(localStorage.getItem('customLevels') || '[]');
+  // const container = $('#custom-levels').empty();
+  // const customLevels = JSON.parse(localStorage.getItem('customLevels') || '[]');
   
-  if (customLevels.length === 0) {
-    container.append(`
-      <div class="empty-state">
-        <p>No custom levels yet!</p>
-        <a href="levelmaker.html" target="_blank" class="create-level-button">
-          Create Your First Level
-        </a>
-      </div>
-    `);
-    return;
-  }
+  // if (customLevels.length === 0) {
+  //   container.append(`
+  //     <div class="empty-state">
+  //       <p>No custom levels yet!</p>
+  //       <a href="levelmaker.html" target="_blank" class="create-level-button">
+  //         Create Your First Level
+  //       </a>
+  //     </div>
+  //   `);
+  //   return;
+  // }
 
-  const levelsList = $('<div class="levels-list"></div>').css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    padding: '15px',
-    maxHeight: '400px',
-    overflowY: 'auto'
-  });
-  container.append(levelsList);
+  // const levelsList = $('<div class="levels-list"></div>').css({
+  //   display: 'flex',
+  //   flexDirection: 'column',
+  //   gap: '8px',
+  //   padding: '15px',
+  //   maxHeight: '400px',
+  //   overflowY: 'auto'
+  // });
+  // container.append(levelsList);
 
-  // Load each level
-  let index = 0;
-  for (const level of customLevels) {
-    try {
-      const metadata = await netService.getGameState(level.id);
-      if (!metadata) continue;
+  // // Load each level
+  // let index = 0;
+  // for (const level of customLevels) {
+  //   try {
+  //     const metadata = await netService.getGameState(level.id);
+  //     if (!metadata) continue;
 
-      const levelEntry = $(`
-        <div class="level-entry" data-id="${level.id}" style="display: flex; align-items: center;">
-          <span style="min-width: 20px; pointer-events: none;">${++index}.</span>
-          <span style="flex-grow: 1; margin-right: 10px; pointer-events: none;">${metadata.name || level.name}</span>
-          <div class="level-actions" style="display: flex; gap: 5px;">
-            <button class="clone-button" style="padding: 4px 8px;">Edit</button>
-            <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
-          </div>
-        </div>
-      `);
+  //     const levelEntry = $(`
+  //       <div class="level-entry" data-id="${level.id}" style="display: flex; align-items: center;">
+  //         <span style="min-width: 20px; pointer-events: none;">${++index}.</span>
+  //         <span style="flex-grow: 1; margin-right: 10px; pointer-events: none;">${metadata.name || level.name}</span>
+  //         <div class="level-actions" style="display: flex; gap: 5px;">
+  //           <button class="clone-button" style="padding: 4px 8px;">Edit</button>
+  //           <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
+  //         </div>
+  //       </div>
+  //     `);
 
-      levelEntry.find('.clone-button').click(() => {
-        window.open(`levelmaker.html?levelid=${level.id}`, '_blank');
-      });
+  //     levelEntry.find('.clone-button').click(() => {
+  //       window.open(`levelmaker.html?levelid=${level.id}`, '_blank');
+  //     });
 
-      levelsList.append(levelEntry);
-    } catch (e) {
-      console.error(`Failed to load custom level ${level.id}:`, e);
-    }
-  }
+  //     levelsList.append(levelEntry);
+  //   } catch (e) {
+  //     console.error(`Failed to load custom level ${level.id}:`, e);
+  //   }
+  // }
 
-  // Position the levels list
-  const rect = container[0].getBoundingClientRect();
-  levelsContainer.css({
-    position: 'fixed',
-    top: rect.top + 'px',
-    left: (rect.right + 20) + 'px',
-    width: '400px',
-    backgroundColor: 'white',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    borderRadius: '8px',
-    zIndex: 1000
-  }).fadeIn(200);
+  // // Position the levels list
+  // const rect = container[0].getBoundingClientRect();
+  // levelsContainer.css({
+  //   position: 'fixed',
+  //   top: rect.top + 'px',
+  //   left: (rect.right + 20) + 'px',
+  //   width: '400px',
+  //   backgroundColor: 'white',
+  //   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+  //   borderRadius: '8px',
+  //   zIndex: 1000
+  // }).fadeIn(200);
 }
 
 window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level so it can be triggered from the HTML page
@@ -332,22 +335,19 @@ async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
   }
 }
 function setWindowSize() {
-  var container = $('#gamebody');
-  var width = container.width();
-  var height = container.height();
+  const container = $('#gamebody');
+  const containerSize = Math.min(container.width(), container.height());
   
   // Calculate cell size that would fit in width and height
-  var cellFromWidth = width / (gamestate.size.x * gamestate.size.z);
-  var cellFromHeight = height / gamestate.size.y;
+  const cellSize = containerSize / Math.max(
+    gamestate.size.x * gamestate.size.z,
+    gamestate.size.y
+  );
   
-  // Use the smaller cell size to ensure squares fit in both dimensions
-  var cellSize = Math.min(cellFromWidth, cellFromHeight);
+  const newWidth = cellSize * gamestate.size.x * gamestate.size.z;
+  const newHeight = cellSize * gamestate.size.y;
   
-  // Calculate new dimensions based on cell size
-  var newWidth = cellSize * gamestate.size.x * gamestate.size.z;
-  var newHeight = cellSize * gamestate.size.y;
-  
-  // Apply new dimensions
+  // Set both width and height to maintain aspect ratio
   container.css({
     "width": newWidth + "px",
     "height": newHeight + "px"
@@ -510,7 +510,8 @@ export function updateMoveDisplay() {
     maximumFractionDigits: 0
   }).format(money);
 
-  $("#movecount").html(`${timeText.join(', ')}, ${formattedMoney}`);
+  $("#movecount-time").html(timeText.join(', '));
+    $("#movecount-money").html(formattedMoney);
 }
 
 export function moveYou(dir) {
@@ -673,13 +674,10 @@ function fontMapping(gridx) {
   return gridx/2.7+"px";
 }
 function drawControlHints(main) {
-  if (gamestate.levelId >= 18 && gamestate.levelId <= 21) {
-    makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press W and S to navigate between planes }";
-  }
-  else if (gamestate.levelId >= 1 && gamestate.levelId <= 1) {
-    makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press &#8592; &#8593; &#8594; &#8595; to move }";
-  }
-  else if (gamestate.levelId >= 4 && gamestate.levelId <= 4) {
+  // if (gamestate.levelId >= 18 && gamestate.levelId <= 21) {
+  //   makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press W and S to navigate between planes }";
+  // }
+  if (gamestate.levelId >= 4 && gamestate.levelId <= 4) {
     makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press Z to undo }";
   }
   else if (gamestate.levelId >= 11 && gamestate.levelId <= 11) {

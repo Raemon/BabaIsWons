@@ -1,0 +1,189 @@
+/* Game Elements Base Styles */
+.block {
+  position: absolute;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Game Text */
+.gameword {
+  font-size: 2.2vh;
+  color: white;
+  --main-font: "Comic Sans MS", "Comic Sans", "ComicShannsMono Nerd Font", cursive;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  word-break: break-all;
+  line-height: 0.8;
+  text-shadow: 0 0 2px rgba(0,0,0,0.8);
+}
+
+/* Directional Sprites */
+.baba, .belt, .ghost, .keke, .bolt {
+  background-size: 100% 400%;
+  transition-property: top, left;
+  transition-duration: 0.1s;
+  transition-delay: 0;
+}
+
+/* Add animation support for GIF sprites */
+.animated {
+  image-rendering: auto !important;
+  background-size: 100% 100% !important;
+}
+
+/* Direction Classes */
+.baba.r { background-position-y: 0; }
+.baba.l { background-position-y: 34%; }
+.baba.u { background-position-y: 69%; }
+.baba.d { background-position-y: 103%; }
+
+.keke.r { background-position-y: 0; }
+.keke.l { background-position-y: 34%; }
+.keke.u { background-position-y: 69%; }
+.keke.d { background-position-y: 103%; }
+
+.bolt.r { background-position-y: 0; }
+.bolt.l { background-position-y: 34%; }
+.bolt.u { background-position-y: 69%; }
+.bolt.d { background-position-y: 103%; }
+
+.belt.r { background-position-y: 0; }
+.belt.l { background-position-y: 34%; }
+.belt.u { background-position-y: 69%; }
+.belt.d { background-position-y: 100%; }
+
+.ghost.r { background-position-y: 0; }
+.ghost.l { background-position-y: 34%; }
+.ghost.u { background-position-y: 67%; }
+.ghost.d { background-position-y: 100%; }
+
+/* Game UI Elements */
+.particle {
+  position: absolute;
+  font-size: 2.0vw;
+  font-weight: 700;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  pointer-events: none;
+  color: white;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+.tier {
+  position: absolute;
+  pointer-events: none;
+  background-color: white;
+  opacity: 0.05;
+}
+
+.controlInfo {
+  pointer-events: none;
+  position: absolute;
+  margin-top: -30px;
+  margin-left: 130px;
+  color: white;
+  z-index: 1;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+/* Grid System */
+.gridline {
+  pointer-events: none;
+  position: absolute;
+  outline: 1px solid #222;
+  z-index: 1;
+}
+
+.grid-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* Game Object Specific */
+.baba {
+  z-index: 1;
+}
+
+/* Animations */
+.float {
+  animation: floatAnim 3s infinite;
+}
+
+@keyframes floatAnim {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+/* Mobile Controls */
+#mobileControls {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  #mobileControls {
+    display: inline-block;
+    position: relative;
+    top: 100px;
+  }
+  
+  #mobileControls span {
+    display: inline-block;
+    position: absolute;
+    width: 15vw;
+    height: 15vw;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 12vw;
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+  }
+  
+  .ctlup { top: -15vw; left: 15vw; }
+  .ctlright { left: 30vw; }
+  .ctldown { top: 15vw; left: 15vw; }
+  .ctlz { left: 45vw; }
+  .ctlspace { left: 60vw; }
+  
+  #ruleUI { display: none; }
+}
+
+/* Audio Controls */
+#audio {
+  position: fixed;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+#audio:hover {
+  opacity: 1;
+}
+
+.audio-container {
+  display: none;
+}
+
+.costs-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.costs-content {
+  display: flex;
+  flex-direction: column;
+}
