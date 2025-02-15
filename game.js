@@ -241,71 +241,71 @@ async function loadWorldLevels(worldName, container) {
 }
 
 async function loadCustomLevels() {
-  const container = $('#custom-levels').empty();
-  const customLevels = JSON.parse(localStorage.getItem('customLevels') || '[]');
+  // const container = $('#custom-levels').empty();
+  // const customLevels = JSON.parse(localStorage.getItem('customLevels') || '[]');
   
-  if (customLevels.length === 0) {
-    container.append(`
-      <div class="empty-state">
-        <p>No custom levels yet!</p>
-        <a href="levelmaker.html" target="_blank" class="create-level-button">
-          Create Your First Level
-        </a>
-      </div>
-    `);
-    return;
-  }
+  // if (customLevels.length === 0) {
+  //   container.append(`
+  //     <div class="empty-state">
+  //       <p>No custom levels yet!</p>
+  //       <a href="levelmaker.html" target="_blank" class="create-level-button">
+  //         Create Your First Level
+  //       </a>
+  //     </div>
+  //   `);
+  //   return;
+  // }
 
-  const levelsList = $('<div class="levels-list"></div>').css({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    padding: '15px',
-    maxHeight: '400px',
-    overflowY: 'auto'
-  });
-  container.append(levelsList);
+  // const levelsList = $('<div class="levels-list"></div>').css({
+  //   display: 'flex',
+  //   flexDirection: 'column',
+  //   gap: '8px',
+  //   padding: '15px',
+  //   maxHeight: '400px',
+  //   overflowY: 'auto'
+  // });
+  // container.append(levelsList);
 
-  // Load each level
-  let index = 0;
-  for (const level of customLevels) {
-    try {
-      const metadata = await netService.getGameState(level.id);
-      if (!metadata) continue;
+  // // Load each level
+  // let index = 0;
+  // for (const level of customLevels) {
+  //   try {
+  //     const metadata = await netService.getGameState(level.id);
+  //     if (!metadata) continue;
 
-      const levelEntry = $(`
-        <div class="level-entry" data-id="${level.id}" style="display: flex; align-items: center;">
-          <span style="min-width: 20px; pointer-events: none;">${++index}.</span>
-          <span style="flex-grow: 1; margin-right: 10px; pointer-events: none;">${metadata.name || level.name}</span>
-          <div class="level-actions" style="display: flex; gap: 5px;">
-            <button class="clone-button" style="padding: 4px 8px;">Edit</button>
-            <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
-          </div>
-        </div>
-      `);
+  //     const levelEntry = $(`
+  //       <div class="level-entry" data-id="${level.id}" style="display: flex; align-items: center;">
+  //         <span style="min-width: 20px; pointer-events: none;">${++index}.</span>
+  //         <span style="flex-grow: 1; margin-right: 10px; pointer-events: none;">${metadata.name || level.name}</span>
+  //         <div class="level-actions" style="display: flex; gap: 5px;">
+  //           <button class="clone-button" style="padding: 4px 8px;">Edit</button>
+  //           <button class="play-button" onclick="loadLevel('${level.id}')">Play</button>
+  //         </div>
+  //       </div>
+  //     `);
 
-      levelEntry.find('.clone-button').click(() => {
-        window.open(`levelmaker.html?levelid=${level.id}`, '_blank');
-      });
+  //     levelEntry.find('.clone-button').click(() => {
+  //       window.open(`levelmaker.html?levelid=${level.id}`, '_blank');
+  //     });
 
-      levelsList.append(levelEntry);
-    } catch (e) {
-      console.error(`Failed to load custom level ${level.id}:`, e);
-    }
-  }
+  //     levelsList.append(levelEntry);
+  //   } catch (e) {
+  //     console.error(`Failed to load custom level ${level.id}:`, e);
+  //   }
+  // }
 
-  // Position the levels list
-  const rect = container[0].getBoundingClientRect();
-  levelsContainer.css({
-    position: 'fixed',
-    top: rect.top + 'px',
-    left: (rect.right + 20) + 'px',
-    width: '400px',
-    backgroundColor: 'white',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    borderRadius: '8px',
-    zIndex: 1000
-  }).fadeIn(200);
+  // // Position the levels list
+  // const rect = container[0].getBoundingClientRect();
+  // levelsContainer.css({
+  //   position: 'fixed',
+  //   top: rect.top + 'px',
+  //   left: (rect.right + 20) + 'px',
+  //   width: '400px',
+  //   backgroundColor: 'white',
+  //   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+  //   borderRadius: '8px',
+  //   zIndex: 1000
+  // }).fadeIn(200);
 }
 
 window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level so it can be triggered from the HTML page

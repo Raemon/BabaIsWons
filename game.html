@@ -95,6 +95,88 @@
 <script type="module">
   import config from './config.js';
   window.config = config;
+
+  $(document).ready(function() {
+    // Modal handling
+    $('#worldselect-button').click(function() {
+      $('.browse-modal').show();
+      loadWorlds();
+    });
+
+    $('.browse-modal .close').click(function() {
+      $('.browse-modal').hide();
+    });
+
+    // Tab switching
+    $('.tab-button').click(async function() {
+      $('.tab-button').removeClass('selected');
+      $(this).addClass('selected');
+      $('.tab-content').removeClass('visible');
+      
+      const tab = $(this).data('tab');
+      const tabContent = $(`#${tab}-levels`);
+      tabContent.addClass('visible');
+      
+      if (tab === 'custom' && tabContent.children().length === 0) {
+        await loadCustomLevels();
+      }
+    });
+  });
+
+  async function loadWorlds() {
+    const container = $('#official-levels .world-grid').empty();
+    
+    for (let worldName in window.worlds) {
+      const displayName = worldName === "???" ? worldName :
+                        worldName.replace(/([A-Z])/g, ' $1').trim();
+      
+      const firstLevelId = window.worlds[worldName][0];
+      
+      const worldSection = $(`
+        <div class="level-card">
+          <img src="img/${worldName.toLowerCase().replace(/ /g, '')}.png" alt="${displayName}">
+          <h3>${displayName}</h3>
+          <div class="meta">${window.worlds[worldName].length} levels</div>
+          <a href="game.html?levelid=${firstLevelId}" class="play-button">Start World</a>
+        </div>
+      `);
+      
+      container.append(worldSection);
+    }
+  }
+
+  async function loadCustomLevels() {
+    const container = $('#custom-levels').empty();
+    const customLevels = config.customLevels;
+    
+    if (customLevels.length === 0) {
+      container.append(`
+        <div class="empty-state">
+          <p>No custom levels yet!</p>
+          <a href="levelmaker.html" class="create-level-button">Create Your First Level</a>
+        </div>
+      `);
+      return;
+    }
+    
+    const levelsList = $('<div class="levels-list"></div>');
+    customLevels.forEach(level => {
+      const levelEntry = $(`
+        <div class="level-entry">
+          <div class="level-info">
+            <span class="level-name">${level.name}</span>
+            ${level.description ? `<div class="level-description">${level.description}</div>` : ''}
+          </div>
+          <div class="level-actions">
+            <a href="game.html?levelid=${level.id}" class="play-button">Play</a>
+          </div>
+        </div>
+      `);
+      levelsList.append(levelEntry);
+    });
+    
+    container.append(levelsList);
+  }
 </script>
 <script src="game.js" type="module"></script>
 </html>
