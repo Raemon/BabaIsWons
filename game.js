@@ -510,7 +510,8 @@ export function updateMoveDisplay() {
     maximumFractionDigits: 0
   }).format(money);
 
-  $("#movecount").html(`${timeText.join(', ')}, ${formattedMoney}`);
+  $("#movecount-time").html(timeText.join(', '));
+    $("#movecount-money").html(formattedMoney);
 }
 
 export function moveYou(dir) {

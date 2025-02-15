@@ -9,21 +9,21 @@
   --button-primary: #4CAF50;
   --button-secondary: #2196F3;
   --card-border: #333;
-  
+
   /* Fonts */
   --main-font: "Comic Sans MS", "Comic Sans", "ComicShannsMono Nerd Font", cursive;
-  
+
   /* Spacing */
   --spacing-sm: 5px;
   --spacing-md: 10px;
   --spacing-lg: 20px;
   --spacing-xl: 30px;
   --header-height: 180px;
-  
+
   /* Transitions */
   --transition-speed: 0.3s;
   --hover-brightness: 1.2;
-  
+
   /* Shadows */
   --shadow-sm: 0 2px 8px rgba(255,255,255,0.1);
   --shadow-md: 0 4px 8px rgba(255,255,255,0.1);
@@ -96,26 +96,38 @@ body {
 
 /* Game Page Specific */
 .game-page {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: 
-    "nav nav"
-    "game costs";
-  gap: var(--spacing-md);
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
-.navigation-bar {
-  grid-area: nav;
+.main-content {
   display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.game-header {
+  text-align: center;
+  padding-top: 2rem;
+}
+
+.game-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-md);
+  padding-top: 4rem;
 }
 
 #worldselect {
+  flex-grow: 1;
+  margin-left: 1rem;
+}
+
+#worldselect-button {
   font-family: var(--main-font);
   background: var(--button-secondary);
   color: var(--text-color);
@@ -127,36 +139,49 @@ body {
   transition: filter var(--transition-speed);
 }
 
-#worldselect:hover {
+#worldselect-button:hover {
   filter: brightness(var(--hover-brightness));
 }
 
 .level-title {
   flex-grow: 1;
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.5em;
 }
 
 #gamebody {
-  grid-area: game;
-  justify-self: center;
-  place-self: center;
+  width: 80rem;
+  height: 80rem;
+  margin-right: 50px;
   background-color: black;
-  width: 85rem;
-  height: 85rem;
+  display: flex;
   position: relative;
-  margin-bottom: 8rem;
+  /* flex-basis: 80rem; */
+  flex-shrink: 0;
 }
 
 #costs {
-  grid-area: costs;
-  padding: var(--spacing-md);
-  font-size: 2em;
-  align-self: center;
-  justify-self: end;
-  max-width: 400px;
-  text-align: left;
+  flex-grow: 1;
+  margin-right: 10rem;
+}
+
+.costs-content {
+  font-size: 1.8em;
+  pointer-events: none;
   position: fixed;
+}
+
+/* .costs-label, .costs-details, #movecount-time, #movecount-money {
+  max-width: 100%;
+} */
+
+.game-footer {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: auto;
 }
 
 /* World Grid */
@@ -255,16 +280,16 @@ body {
   margin: var(--spacing-sm) 0;
 }
 
-.play-button {
+.play-button { /* Kept from old css, might be redundant if already defined above */
   background: var(--button-primary);
 }
 
-.edit-button {
+.edit-button { /* Kept from old css, might be redundant if already defined above */
   background: var(--button-secondary);
 }
 
-.play-button:hover,
-.edit-button:hover {
+.play-button:hover, /* Kept from old css, might be redundant if already defined above */
+.edit-button:hover { /* Kept from old css, might be redundant if already defined above */
   filter: brightness(var(--hover-brightness));
 }
 
@@ -324,48 +349,83 @@ body {
   display: block;
 }
 
+#audio {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .game-page {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr;
-    grid-template-areas: 
-      "nav"
-      "costs"
-      "game";
     height: auto;
     overflow: visible;
   }
-  
-  .navigation-bar {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-  
-  #costs {
+
+  .left-controls { /* Renamed from navigation-bar */
+    position: static;
+    transform: none;
+    width: 100%;
+    padding: var(--spacing-md);
     text-align: center;
-    width: auto;
-    margin-right: 0;
   }
-  
+
+  .main-content {
+    padding: var(--spacing-md);
+  }
+
+  .game-container {
+    padding-top: var(--spacing-md);
+  }
+
+  .costs-content { /* Styles for costs in responsive */
+    text-align: center;
+    align-items: center;
+  }
+
+  #costs { /* Added back from old css responsive section */
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: var(--spacing-md);
+    border-radius: 0;
+  }
+
   #gamebody {
-    width: 90vw;
-    height: 90vw;
+    width: 90vmin;
+    height: 90vmin;
   }
-  
+
+  .game-footer { /* Replaces #audio in responsive */
+    position: static;
+    transform: none;
+    margin: var(--spacing-md) auto;
+    text-align: center;
+  }
+
+  #audio { /* Added back from old css responsive section */
+    position: static;
+    transform: none;
+    margin: var(--spacing-md) auto;
+  }
+
   .level-entry {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .level-actions {
     justify-content: center;
   }
-  
+
   .home-header {
     position: sticky;
   }
-  
+
   .home-container {
     margin-top: 0;
   }

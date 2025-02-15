@@ -165,8 +165,7 @@
 /* Audio Controls */
 #audio {
   position: fixed;
-  bottom: 10px;
-  right: 10px;
+  margin-bottom: 1rem;
   opacity: 0.7;
   transition: opacity 0.3s;
 }
@@ -177,4 +176,14 @@
 
 .audio-container {
   display: none;
+}
+
+.costs-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.costs-content {
+  display: flex;
+  flex-direction: column;
 }
