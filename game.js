@@ -674,13 +674,10 @@ function fontMapping(gridx) {
   return gridx/2.7+"px";
 }
 function drawControlHints(main) {
-  if (gamestate.levelId >= 18 && gamestate.levelId <= 21) {
-    makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press W and S to navigate between planes }";
-  }
-  else if (gamestate.levelId >= 1 && gamestate.levelId <= 1) {
-    makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press &#8592; &#8593; &#8594; &#8595; to move }";
-  }
-  else if (gamestate.levelId >= 4 && gamestate.levelId <= 4) {
+  // if (gamestate.levelId >= 18 && gamestate.levelId <= 21) {
+  //   makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press W and S to navigate between planes }";
+  // }
+  if (gamestate.levelId >= 4 && gamestate.levelId <= 4) {
     makesq("h2", main[0], "controlInfo", 10, 0).innerHTML = "{ Press Z to undo }";
   }
   else if (gamestate.levelId >= 11 && gamestate.levelId <= 11) {

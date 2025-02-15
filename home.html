@@ -11,6 +11,7 @@
     <h1 class="game-title">BABA IS YOU</h1>
     <div class="game-instructions">
       <p>Use &#8592; &#8593; &#8594; &#8595; arrow keys to move</p>
+      <p>Press Z to undo</p>
     </div>
   </header>
 
@@ -35,47 +36,53 @@
 
   <script src="jquery-3.4.1.min.js"></script>
   <script src="netcode.js"></script>
-  <script src="levels/levelids.js"></script>
+  <script src="levels/levelids.js" defer></script>
   
   <script type="module">
     import config from './config.js';
+    console.log(config);
     window.config = config;
     
-    // Load worlds when page loads
-    $(document).ready(async function() {
-      await loadWorlds();
-      
-      // Tab switching
-      $('.tab-button').click(async function() {
-        $('.tab-button').removeClass('selected');
-        $(this).addClass('selected');
-        $('.tab-content').removeClass('visible');
+    // Wait for DOM and levelids.js to load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait a bit more to ensure levelids.js is loaded
+      setTimeout(async function() {
+        await loadWorlds();
         
-        const tab = $(this).data('tab');
-        const tabContent = $(`#${tab}-levels`);
-        tabContent.addClass('visible');
-        
-        if (tab === 'custom' && tabContent.children().length === 0) {
-          await loadCustomLevels();
-        }
-      });
+        // Tab switching
+        $('.tab-button').click(async function() {
+          $('.tab-button').removeClass('selected');
+          $(this).addClass('selected');
+          $('.tab-content').removeClass('visible');
+          
+          const tab = $(this).data('tab');
+          const tabContent = $(`#${tab}-levels`);
+          tabContent.addClass('visible');
+          
+          if (tab === 'custom' && tabContent.children().length === 0) {
+            await loadCustomLevels();
+          }
+        });
+      }, 100);
     });
 
     async function loadWorlds() {
       const container = $('#official-levels .world-grid').empty();
+      const worlds = window.worlds || {};
       
-      for (let worldName in window.worlds) {
+      for (let worldName in worlds) {
+        // Skip empty worlds or meta worlds
+        if (worlds[worldName].length === 0 || worldName === 'meta' || worldName === 'depths') continue;
+        
         const displayName = worldName === "???" ? worldName :
-                          worldName.replace(/([A-Z])/g, ' $1').trim();
+                          worldName.replace(/([A-Z])/g, ' $1').trim().replace('baba3d', 'Baba Is 3D');
         
-        const firstLevelId = window.worlds[worldName][0];
-        
-        // Don't skip any worlds - remove the conditional check
+        const firstLevelId = worlds[worldName][0];
         const worldSection = $(`
           <div class="level-card">
             <img src="img/${worldName.toLowerCase().replace(/ /g, '')}.png" alt="${displayName}">
             <h3>${displayName}</h3>
-            <div class="meta">${window.worlds[worldName].length} levels</div>
+            <div class="meta">${worlds[worldName].length} levels</div>
             <a href="game.html?levelid=${firstLevelId}" class="play-button">Start World</a>
           </div>
         `);

@@ -1,41 +1,75 @@
 <html>
 <head>
-    <link type="text/css" href="style.css" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="/img/favicon.png">
-    <title>Baba Level Maker</title>
+  <link type="text/css" href="game.css" rel="stylesheet" />
+  <link type="text/css" href="ui.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <title>Baba Level Maker</title>
 </head>
-<body oncontextmenu="return false;">
-  <h3><label for="levelname">Level Name: </label> <input id="levelname" name="levelname" value="Untitled">
-    &nbsp;&nbsp; Left Click to Create Object/Word. &nbsp;&nbsp;&nbsp; Right Click to Delete</h3>
-  <div id="gamebody">
-
-  </div>
-  <div>
-    <span>
-      Selected Object (Press enter to submit changes)<br/>
-      Name: <input id="objname">
-      <br />
-      Direction: <input id="objdir">
-    </span>
-    <textarea id = "levelcode" rows = 3 cols = 40 style="display:none">
-    </textarea>
-    <div style="margin-left: 30px; display: inline-block">
-      Next element created will be: <br>
-      <button id="objbutton" class="selected">Object</button><button id="wordbutton">Word</button>
-      <span style="display:none">&nbsp; &nbsp; <button id="save">Save</button><button id="load">Load</button></span>
-
-    </div>
-    &nbsp; &nbsp;
-    <div style = "display: inline-block">
-      Size (click save to change): X: <input id="xsize" style="width:40px"> Y: <input id="ysize" style="width:40px"> Z: <input id="zsize" style="width:40px"><br>
-      <button id="savecloud"><b>Save Game</b></button><button id="cloneCloud">Clone</button><button id="testbutton">Test</button>
-      <button id="browselevels">Browse Levels</button>
+<!-- <body class="levelmaker-page" oncontextmenu="return false;"> -->
+<body class="levelmaker-page">
+  <div class="levelmaker-header">
+    <div class="level-name-levelmaker">
+      <label for="levelname">Level Name: </label>
+      <input id="levelname" name="levelname" value="Untitled">
+      <span class="instruction-text">Left Click to Create Object/Word. Right Click to Delete</span>
     </div>
   </div>
-  <div id="ruleUI"> </div>
-  <div class="loading" style="display:none;">Loading</div>
-  <div class="modal browse-modal" style="display:none; pointer-events: none;">
-    <div class="modal-content" style="pointer-events: all;">
+
+  <div class="levelmaker-content">
+    <div class="levelmaker-game-container">
+      <div id="gamebody">
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="object-controls">
+        <div class="properties">
+          <div class="property-row">
+            <label>Name:</label>
+            <input id="objname">
+          </div>
+          <div class="property-row">
+            <label>Direction:</label>
+            <input id="objdir">
+          </div>
+        </div>
+
+        <div class="creation-controls">
+          <p>Next element created will be:</p>
+          <div class="type-buttons">
+            <button id="objbutton" class="selected">Object</button>
+            <button id="wordbutton">Word</button>
+          </div>
+        </div>
+
+        <textarea id="levelcode" rows="3" cols="40" style="display:none">
+        </textarea>
+      </div>
+
+      <div class="level-controls">
+        <div class="size-controls">
+          <p>Size (click save to change):</p>
+          <div class="size-inputs">
+            <label>X: <input id="xsize" type="number"></label>
+            <label>Y: <input id="ysize" type="number"></label>
+            <label>Z: <input id="zsize" type="number"></label>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="savecloud" class="primary-button">Save Game</button>
+          <button id="cloneCloud">Clone</button>
+          <button id="testbutton">Test</button>
+          <button id="browselevels">Browse Levels</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- <div class="loading" style="display: none;">Loading</div> -->
+  
+  <div class="modal browse-modal">
+    <div class="modal-content">
       <h2>Browse Levels</h2>
       <div class="modal-tabs">
         <button class="tab-button selected" data-tab="official">Official Levels</button>
@@ -44,24 +78,24 @@
       <div class="tab-content" id="official-levels">
         <!-- Official levels loaded dynamically -->
       </div>
-      <div class="tab-content" id="custom-levels" style="display:none;">
+      <div class="tab-content" id="custom-levels">
         <!-- Custom levels loaded dynamically -->
       </div>
-      <div class="close">X</div>
+      <button class="close">X</button>
     </div>
   </div>
-</body>
 
-<script>window.config={
-  playSnd:false,
-  winForward:false,
-  particle:true,
-}</script>
-<script src="jquery-3.4.1.min.js"></script>
-<script src="markgen.js"></script>
-<script src="netcode.js"></script>
-<script src="levels/levelids.js"></script>
-<script src="levelmaker.js" type="module"></script>
-<script src="imageLoader.js"></script>
-<script src="particle.js"></script>
+  <script>window.config={
+    playSnd:false,
+    winForward:false,
+    particle:true,
+  }</script>
+  <script src="jquery-3.4.1.min.js"></script>
+  <script src="markgen.js"></script>
+  <script src="netcode.js"></script>
+  <script src="levels/levelids.js"></script>
+  <script src="levelmaker.js" type="module"></script>
+  <script src="imageLoader.js"></script>
+  <script src="particle.js"></script>
+</body>
 </html>
