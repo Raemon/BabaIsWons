@@ -107,6 +107,11 @@ body {
   justify-content: space-between;
   align-items: center;
   padding-top: 4rem;
+  gap: 2rem;
+}
+
+.game-section {
+  margin: 0;
 }
 
 #worldselect {
@@ -130,6 +135,24 @@ body {
   filter: brightness(var(--hover-brightness));
 }
 
+#restart-button {
+  font-family: var(--main-font);
+  background: #e74c3c;
+  color: var(--text-color);
+  border: none;
+  padding: 8px 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 1em;
+  border-radius: 5px;
+  transition: filter var(--transition-speed);
+  display: block;
+}
+
+#restart-button:hover {
+  filter: brightness(var(--hover-brightness));
+}
+
 .level-title {
   flex-grow: 1;
   text-align: center;
@@ -149,13 +172,19 @@ body {
 
 #costs {
   flex-grow: 1;
-  margin-right: 10rem;
+  margin-right: 1rem;
+  position: relative;
 }
 
 .costs-content {
   font-size: 1.8em;
   pointer-events: none;
-  position: fixed;
+  position: absolute;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  right: 0;
 }
 
 /* .costs-label, .costs-details, #movecount-time, #movecount-money {
@@ -346,13 +375,111 @@ body {
 }
 
 /* Responsive Design */
+@media screen and (max-width: 1800px) {
+  #gamebody {
+    width: 60vw;
+    height: 60vw;
+    max-width: 70rem;
+    max-height: 70rem;
+  }
+
+  .costs-content {
+    font-size: 1.4em;
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    border-radius: 5px;
+    width: auto;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  .game-container {
+    padding-top: var(--spacing-md);
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .game-section {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  #costs {
+    position: relative;
+    margin: var(--spacing-md) auto;
+    top: auto;
+    right: auto;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    order: 3; /* Place after gamebody */
+    margin-top: 2rem;
+  }
+  
+  .costs-content {
+    position: static;
+    font-size: 1.2em;
+    text-align: center;
+    background: rgba(0,0,0,0.5);
+    border-radius: 5px;
+    width: 100%;
+    max-width: 100%;
+    padding: var(--spacing-sm);
+  }
+
+  #worldselect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    width: 100%;
+    order: 1; /* First element */
+  }
+
+  #gamebody {
+    width: 80vw;
+    height: 80vw;
+    max-width: 70rem;
+    max-height: 70rem;
+    margin-right: 0;
+    order: 2; /* Second element */
+  }
+  
+  #worldselect-button, #restart-button {
+    width: 40%;
+    margin: 5px auto;
+  }
+}
+
+/* Mobile Controls */
+#mobileControls {
+  display: none !important; /* Make sure it's not displayed by default */
+  z-index: 100;
+}
+
 @media screen and (max-width: 768px) {
   .game-page {
     height: auto;
     overflow: visible;
   }
 
-  .left-controls { /* Renamed from navigation-bar */
+  #mobileControls {
+    display: inline-block !important; /* Only show on mobile */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+  }
+  
+  .game-container {
+    gap: 1rem;
+    padding-bottom: 100px; /* Make room for mobile controls */
+    margin: 0;
+    width: 100%;
+  }
+
+  .left-controls {
     position: static;
     transform: none;
     width: 100%;
@@ -362,30 +489,82 @@ body {
 
   .main-content {
     padding: var(--spacing-md);
-  }
-
-  .game-container {
-    padding-top: var(--spacing-md);
-  }
-
-  .costs-content { /* Styles for costs in responsive */
-    text-align: center;
+    width: 100%;
     align-items: center;
   }
 
-  #costs { /* Added back from old css responsive section */
-    position: static;
-    transform: none;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: var(--spacing-md);
-    border-radius: 0;
+  #gamebody {
+    width: 95vw; /* Larger game area to fit screen margins */
+    height: 95vw;
+    max-width: 95vw;
+    max-height: 95vw;
+    margin: 0 auto;
+  }
+  
+  #worldselect-button, #restart-button {
+    width: 45%; /* Smaller buttons */
+    margin: 5px auto;
+    padding: 6px 10px; /* Smaller padding */
+    font-size: 0.9em; /* Smaller text */
   }
 
-  #gamebody {
-    width: 90vmin;
-    height: 90vmin;
+  /* Improved modals for mobile */
+  .modal {
+    align-items: center;
+  }
+  
+  .modal-content {
+    width: 90%;
+    max-width: 90vw;
+    max-height: 70vh;
+    padding: var(--spacing-md);
+    font-size: 0.85em; /* Smaller text in modals */
+    overflow-y: auto;
+    margin: 0 auto;
+  }
+  
+  .restart-modal .modal-content {
+    max-width: 90vw;
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-xl) var(--spacing-md);
+  }
+  
+  .restart-warning {
+    font-size: 1em;
+    word-wrap: break-word;
+  }
+  
+  .restart-confirmation p {
+    word-wrap: break-word;
+  }
+  
+  .restart-input {
+    padding: 8px;
+    margin: 10px 0;
+    font-size: 0.9em;
+    width: 95%;
+  }
+  
+  .restart-actions {
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    margin-top: 15px;
+  }
+  
+  .restart-actions button {
+    padding: 6px 12px;
+    font-size: 0.9em;
+  }
+
+  /* Make research costs text bigger */
+  .costs-content {
+    font-size: 1.4em;
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    border-radius: 5px;
+    width: auto;
   }
 
   .game-footer { /* Replaces #audio in responsive */
@@ -416,6 +595,124 @@ body {
 
   .home-container {
     margin-top: 0;
+  }
+}
+
+/* For extra small screens */
+@media screen and (max-width: 480px) {
+  .costs-content {
+    font-size: 1.2em; /* Bigger text for research costs */
+    padding: 10px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .costs-label {
+    font-size: 1.1em; /* Make the label bigger */
+  }
+  
+  .costs-details span {
+    font-size: 1.1em; /* Make the details bigger */
+  }
+  
+  #months-until-agi {
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
+  
+  .level-title {
+    font-size: 1.2em;
+  }
+
+  #gamebody {
+    width: 100vw; /* Full width */
+    height: 100vw;
+    max-width: 100%; 
+    max-height: 100vw;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .game-container {
+    padding: 0.5rem 0 120px 0;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  
+  .game-header {
+    padding-top: 0.5rem;
+    width: 100%;
+  }
+  
+  #worldselect-button, #restart-button {
+    width: 40%; /* Even smaller buttons */
+    padding: 4px 8px;
+    font-size: 0.8em;
+  }
+  
+  /* Further improved modals for tiny screens */
+  .modal-content {
+    width: 95%;
+    padding: var(--spacing-sm);
+    font-size: 0.75em;
+    max-height: 60vh;
+  }
+  
+  .modal h2 {
+    font-size: 1.2em;
+    margin: 0.5em 0;
+  }
+  
+  .modal p {
+    margin: 0.5em 0;
+    line-height: 1.4;
+  }
+  
+  .close {
+    font-size: 20px;
+    right: 5px;
+    top: 5px;
+  }
+  
+  .restart-modal .modal-content {
+    padding-bottom: 60px; /* Extra space for buttons */
+    position: relative;
+  }
+  
+  .restart-warning {
+    font-size: 1em;
+    margin: 0.5rem 0;
+  }
+  
+  .restart-confirmation {
+    font-size: 0.9em;
+  }
+  
+  .restart-input {
+    padding: 6px;
+    margin: 8px 0;
+    font-size: 0.9em;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .restart-actions {
+    gap: 5px;
+    padding: 0 var(--spacing-sm);
+    box-sizing: border-box;
+    position: absolute;
+    bottom: var(--spacing-sm);
+    margin: 0;
+  }
+  
+  .restart-actions button {
+    padding: 8px;
+    font-size: 0.8em;
+    min-width: 70px;
   }
 }
 
@@ -568,4 +865,176 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+/* Add these after the modal styles */
+.restart-modal .modal-content {
+  max-width: 600px;
+}
+
+.restart-warning {
+  color: #e74c3c;
+  font-size: 1.2em;
+  margin: 1rem 0;
+}
+
+.restart-confirmation p {
+  margin: 0.5rem 0;
+}
+
+.restart-input {
+  width: 100%;
+  padding: 10px;
+  margin: 15px 0;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--card-border);
+  color: var(--text-color);
+  font-family: var(--main-font);
+  font-size: 1em;
+}
+
+.restart-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.secondary-button {
+  background: #7f8c8d;
+  color: var(--text-color);
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: var(--main-font);
+  border-radius: 3px;
+}
+
+.danger-button {
+  background: #e74c3c;
+  color: var(--text-color);
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: var(--main-font);
+  border-radius: 3px;
+}
+
+/* Add this to the months-until-agi span */
+#months-until-agi {
+  margin-top: 5px;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* Add styles for error state on input */
+.restart-input.error {
+  border-color: #e74c3c;
+  animation: shakeInput 0.4s linear;
+}
+
+@keyframes shakeInput {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+  100% { transform: translateX(0); }
+}
+
+/* Add more specific media queries for different screen sizes */
+@media screen and (max-height: 600px) {
+  .costs-content {
+    font-size: 1em;
+  }
+  
+  .game-title {
+    font-size: 2.5em;
+  }
+  
+  .game-container {
+    padding-top: var(--spacing-sm);
+  }
+  
+  #gamebody {
+    width: 70vmin;
+    height: 70vmin;
+  }
+}
+
+/* New section styles */
+.main-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.secondary-section {
+  margin-top: var(--spacing-xl);
+  opacity: 0.8;
+  font-size: 0.9em;
+}
+
+.section-title {
+  font-size: 2em;
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.secondary-title {
+  font-size: 1.5em;
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* Update world grid for secondary section */
+.secondary-section .world-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.secondary-section .level-card {
+  transform: scale(0.9);
+}
+
+.secondary-section .level-card:hover {
+  transform: scale(0.92);
+}
+
+/* Toggle button styles */
+.toggle-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.toggle-button {
+  background-color: #343434;
+  color: var(--text-color);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-family: var(--main-font);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-button:hover {
+  background-color: #4a4a4a;
+  transform: translateY(-2px);
+}
+
+/* Loading Screen */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0, 0, 0);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  font-size: 2em;
+  font-family: var(--main-font);
 }

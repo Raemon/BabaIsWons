@@ -9,27 +9,24 @@
 <body class="home-page">
   <header class="home-header">
     <h1 class="game-title">BABA IS YOU</h1>
-    <div class="game-instructions">
-      <p>Use &#8592; &#8593; &#8594; &#8595; arrow keys to move</p>
-      <p>Press Z to undo</p>
-    </div>
   </header>
 
   <div class="home-container">    
     <div class="world-browser">
-      <div class="browser-tabs">
-        <button class="tab-button selected" data-tab="official">Official Worlds</button>
-        <button class="tab-button" data-tab="custom">Custom Levels</button>
+      <div id="custom-levels" class="main-section">
+        <h2 class="section-title">Custom Levels</h2>
+        <!-- Will be populated by JavaScript -->
       </div>
       
-      <div class="tab-content visible" id="official-levels">
+      <div class="toggle-container">
+        <button id="toggle-original-levels" class="toggle-button">Show Original Levels</button>
+      </div>
+      
+      <div id="official-levels" class="secondary-section" style="display: none;">
+        <h3 class="secondary-title">Official Worlds</h3>
         <div class="world-grid">
           <!-- Will be populated by JavaScript -->
         </div>
-      </div>
-      
-      <div class="tab-content" id="custom-levels">
-        <!-- Will be populated by JavaScript -->
       </div>
     </div>
   </div>
@@ -47,20 +44,19 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Wait a bit more to ensure levelids.js is loaded
       setTimeout(async function() {
+        // Load both custom and official levels
+        await loadCustomLevels();
         await loadWorlds();
         
-        // Tab switching
-        $('.tab-button').click(async function() {
-          $('.tab-button').removeClass('selected');
-          $(this).addClass('selected');
-          $('.tab-content').removeClass('visible');
-          
-          const tab = $(this).data('tab');
-          const tabContent = $(`#${tab}-levels`);
-          tabContent.addClass('visible');
-          
-          if (tab === 'custom' && tabContent.children().length === 0) {
-            await loadCustomLevels();
+        // Initialize toggle button
+        $('#toggle-original-levels').click(function() {
+          const $officialLevels = $('#official-levels');
+          if ($officialLevels.is(':visible')) {
+            $officialLevels.slideUp(300);
+            $(this).text('Show Original Levels');
+          } else {
+            $officialLevels.slideDown(300);
+            $(this).text('Hide Original Levels');
           }
         });
       }, 100);

@@ -90,7 +90,8 @@ function showConfigPopup(levelId, levelName) {
   const configEntry = {
     id: levelId,
     name: levelName,
-    description: 'Custom level' // Optional default description
+    description: 'Custom level', // Optional default description
+    weeksUntilAGI: parseInt($("#weeksUntilAGI").val()) || 25
   };
   
   let configString = "{\n";
@@ -394,6 +395,14 @@ async function loadLevelForEditing(levelId) {
     $("#xsize").val(levelData.size.x);
     $("#ysize").val(levelData.size.y);
     $("#zsize").val(levelData.size.z);
+    
+    // Set weeksUntilAGI if available in level data
+    if (levelData.weeksUntilAGI !== undefined) {
+      $("#weeksUntilAGI").val(levelData.weeksUntilAGI);
+    } else {
+      $("#weeksUntilAGI").val(25); // Default value
+    }
+    
     drawGameState();
     hideBrowseModal();
     showFeedback('Level loaded for editing');
@@ -596,6 +605,7 @@ async function testlevel() {
     $('.loading').show();
     try {
       window.gamestate.name = levelName;
+      window.gamestate.weeksUntilAGI = parseInt($("#weeksUntilAGI").val()) || 25;
       const ret = await netService.makeNewLevel(window.gamestate);
       gamestate.levelId = ret["_id"];
       showFeedback('Level saved successfully!');
@@ -707,6 +717,7 @@ async function savecloud() {
   window.gamestate.size.x = $("#xsize").val();
   window.gamestate.size.y = $("#ysize").val();
   window.gamestate.size.z = $("#zsize").val();
+  window.gamestate.weeksUntilAGI = parseInt($("#weeksUntilAGI").val()) || 25;
 
   // Show loading indicator
   $('.loading').show();

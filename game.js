@@ -50,6 +50,7 @@ window.onload = async function () {
   
   $(".close").click(function() {$(".modal").removeClass("visible"); setTimeout(() => $(".modal").hide(), 300);})
   
+  /* This handler is causing conflicts with the button handlers in game.html
   $("#worldselect").click(async function() {
     $(".modal").show();
     setTimeout(() => $(".modal").addClass("visible"), 10);
@@ -58,6 +59,7 @@ window.onload = async function () {
       await loadWorlds();
     }
   });
+  */
   
   // Tab switching
   $('.tab-button').click(async function() {
@@ -83,7 +85,11 @@ window.onload = async function () {
   $(".ctlup")[0]&& ($(".ctlup")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: -1, z: 0 }); },false));
   $(".ctldown")[0]&& ($(".ctldown")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: 1, z: 0 }); },false));
   $(".ctlspace")[0]&& ($(".ctlspace")[0].addEventListener('touchstart',function (e){ e.preventDefault(); gamewait(); },false));
+  
+  // Z button undo functionality disabled
+  /* 
   $(".ctlz")[0]&& ($(".ctlz")[0].addEventListener('touchstart',function (e) { e.preventDefault(); undo.undo(gameHandler); },false));
+  */
 
   $("body").keydown(function (event) {
     pressKey(event);
@@ -122,8 +128,6 @@ window.pressKey = function(event) {
     moveYou({ x: 0, y: 0, z: -1 });
   } else if (event.keyCode == 32) {
     gamewait();
-  } else if (event.keyCode == 90) {
-    undo.undo(gameHandler);
   }
 }
 function gamewait() {
@@ -187,13 +191,38 @@ async function tmp() {
   }, 0);
 }
 function loadPremadeLevel(levelnum) {
+  // Show the loading screen
+  $(".loading").css("display", "flex");
+  
   var levelTag = document.createElement("script");
   levelTag.type="text/javascript";
   levelTag.onload = function() {
     makeGameState(levelnum || 1);
     setWindowSize();
     drawGameState();
+    
+    // Hide loading screen with a slight delay to ensure everything is rendered
+    setTimeout(() => {
+      $(".loading").fadeOut(300);
+      // Clear the loading timeout if it exists
+      if (window.loadingTimeout) {
+        clearTimeout(window.loadingTimeout);
+        window.loadingTimeout = null;
+      }
+    }, 200);
   };
+  
+  levelTag.onerror = function(error) {
+    console.error("Error loading level:", error);
+    // Even if there's an error, hide the loading screen
+    $(".loading").fadeOut(300);
+    // Clear the loading timeout if it exists
+    if (window.loadingTimeout) {
+      clearTimeout(window.loadingTimeout);
+      window.loadingTimeout = null;
+    }
+  };
+  
   levelTag.src=`levels/level${levelnum}.js`;
   $("head")[0].appendChild(levelTag);
 }
@@ -317,20 +346,91 @@ window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level
   setTimeout(() => $(".modal").hide(), 300);
 }
 async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
-  var comgamestate = await netService.getGameState(communityLevelId);
-  window.gamestate = comgamestate;
-  comgamestate.levelId = communityLevelId;
-  initGameState(comgamestate, isRestart);
-  if (isRestart && preserveMoves !== undefined) {
-    gamestate.moveCount = preserveMoves;
+  // Show the loading screen before starting to load
+  $(".loading").css("display", "flex");
+  
+  try {
+    var comgamestate = await netService.getGameState(communityLevelId);
+    
+    // If not explicitly restarting, check for saved game state
+    if (!isRestart && window.gameProgress) {
+      const savedState = window.gameProgress.loadSavedGameState(communityLevelId);
+      if (savedState) {
+        console.log("Loading saved game state for level", communityLevelId);
+        window.gamestate = savedState;
+        // Make sure the levelId is set correctly (in case it wasn't saved properly)
+        window.gamestate.levelId = communityLevelId;
+        
+        // Initialize without resetting
+        initGameState(window.gamestate, true);
+        
+        updateMoveDisplay();
+        setWindowSize();
+        drawGameState();
+        
+        for (var lvl in window.worlds) {
+          if (~window.worlds[lvl].indexOf(communityLevelId)) {
+            $("#gamebody").css("background-color",window.colorMapping[lvl])
+          }
+        }
+        
+        // Hide loading screen
+        setTimeout(() => {
+          $(".loading").fadeOut(300);
+          if (window.loadingTimeout) {
+            clearTimeout(window.loadingTimeout);
+            window.loadingTimeout = null;
+          }
+        }, 200);
+        
+        return; // We've loaded the saved state, no need to continue
+      }
+    }
+    
+    // No saved state or we're restarting, proceed with loading the initial level state
+    window.gamestate = comgamestate;
+    comgamestate.levelId = communityLevelId;
+    initGameState(comgamestate, isRestart);
+    
+    // If not restarting, check if we should load moves from gameProgress
+    if (!isRestart && window.gameProgress && !preserveMoves) {
+      gamestate.moveCount = window.gameProgress.moveCount || 0;
+    } else if (isRestart && preserveMoves !== undefined) {
+      gamestate.moveCount = preserveMoves;
+    }
+    
     updateMoveDisplay();
-  }
-  setWindowSize();
-  drawGameState();
+    setWindowSize();
+    drawGameState();
 
-  for (var lvl in window.worlds) {
-    if (~window.worlds[lvl].indexOf(communityLevelId)) {
-      $("#gamebody").css("background-color",window.colorMapping[lvl])
+    for (var lvl in window.worlds) {
+      if (~window.worlds[lvl].indexOf(communityLevelId)) {
+        $("#gamebody").css("background-color",window.colorMapping[lvl])
+      }
+    }
+    
+    // If this is a fresh load, save initial state
+    if (!isRestart && window.gameProgress) {
+      window.gameProgress.saveGameState(communityLevelId);
+    }
+    
+    // Hide loading screen with a slight delay to ensure everything is rendered
+    setTimeout(() => {
+      $(".loading").fadeOut(300);
+      // Clear the loading timeout if it exists
+      if (window.loadingTimeout) {
+        clearTimeout(window.loadingTimeout);
+        window.loadingTimeout = null;
+      }
+    }, 200);
+  } catch (error) {
+    console.error("Error loading level:", error);
+    // Even if there's an error, hide the loading screen
+    $(".loading").fadeOut(300);
+    // Clear the loading timeout if it exists
+    if (window.loadingTimeout) {
+      clearTimeout(window.loadingTimeout);
+      window.loadingTimeout = null;
     }
   }
 }
@@ -485,6 +585,23 @@ export function updateMoveDisplay() {
   const totalWeeks = moves;
   const money = moves * 5000;
   
+  // Synchronize with gameProgress if available
+  if (window.gameProgress) {
+    window.gameProgress.moveCount = moves;
+    window.gameProgress.time = totalWeeks;
+    window.gameProgress.money = money;
+    
+    // Let gameProgress update the display to ensure consistent formatting
+    const timeText = window.gameProgress.formatTimeDisplay(totalWeeks);
+    const moneyText = '$' + money.toLocaleString();
+    
+    $("#movecount-time").html(timeText);
+    $("#movecount-money").html(moneyText);
+    window.gameProgress.updateWarningLevel();
+    return;
+  }
+  
+  // If gameProgress is not available, format directly
   let years = Math.floor(totalWeeks / 52);
   let remainingWeeks = totalWeeks % 52;
   let months = Math.floor(remainingWeeks / 4);
@@ -511,12 +628,20 @@ export function updateMoveDisplay() {
   }).format(money);
 
   $("#movecount-time").html(timeText.join(', '));
-    $("#movecount-money").html(formattedMoney);
+  $("#movecount-money").html(formattedMoney);
 }
 
 export function moveYou(dir) {
   moveYouImplFn(dir);
   updateMoveDisplay();
+  
+  // Dispatch custom event to track moves for AGI counter
+  document.dispatchEvent(new CustomEvent('game:move'));
+  
+  // Save the game state (in case the event handler isn't working)
+  if (window.gameProgress && window.gamestate && window.gamestate.levelId) {
+    window.gameProgress.saveGameState(window.gamestate.levelId);
+  }
 }
 function moveYouImpl(dir) {
   playSfx("walk");
