@@ -5,6 +5,48 @@
     <link rel="icon" type="image/png" href="img/favicon.png">
     <title>Baba Is You</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      /* Warning level styles for research costs */
+      .costs-details span {
+        transition: all 0.3s ease;
+      }
+      .warning-low {
+        color: #ff9900;
+        font-size: 1.1em;
+      }
+      .warning-medium {
+        color: #ff6600;
+        font-size: 1.2em;
+        font-weight: bold;
+      }
+      .warning-high {
+        color: #ff0000;
+        font-size: 1.3em;
+        font-weight: bold;
+        text-shadow: 0 0 3px rgba(255,0,0,0.3);
+      }
+      .warning-critical {
+        color: #ff0000;
+        font-size: 1.5em;
+        font-weight: bold;
+        text-shadow: 0 0 5px rgba(255,0,0,0.5);
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      
+      /* Uncopyable text style */
+      .uncopyable {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        pointer-events: none;
+      }
+    </style>
 </head>
 <body class="game-page">
   <div class="main-content">
@@ -80,7 +122,7 @@
       
       <div class="restart-confirmation">
         <p>To confirm restart, please type:</p>
-        <p><em>"This timeline is lost. 8 billion lives, disappeared forever. I hope I can plan better in the next timeline."</em></p>
+        <p><em class="uncopyable">"This timeline is lost. 8 billion lives, disappeared forever. I hope I can plan better in the next timeline."</em></p>
         <input type="text" id="restart-confirmation-text" class="restart-input" placeholder="Type the confirmation message...">
         <div class="restart-actions">
           <button id="cancel-restart" class="secondary-button">Cancel</button>
@@ -133,6 +175,202 @@
       return defaultValue;
     }
   }
+
+  // Game progress tracker
+  const gameProgress = {
+    moveCount: 0,
+    money: 0,
+    time: 0,
+    weeksUntilAGI: 25, // Default value, will be updated when level loads
+    currentLevelId: null, // Track the current level ID
+    
+    // Increment move count and update UI
+    incrementMoves: function(count = 1) {
+      this.moveCount += count;
+      this.time = this.moveCount;
+      this.money = this.moveCount * 1000; // $1000 per move
+      
+      // Update display with properly formatted values
+      const timeText = this.formatTimeDisplay(this.time);
+      const moneyText = '$' + this.money.toLocaleString();
+      
+      $('#movecount-time').text(timeText);
+      $('#movecount-money').text(moneyText);
+      
+      // Update warning level based on proximity to AGI
+      this.updateWarningLevel();
+      
+      // Save progress
+      this.saveProgress();
+    },
+    
+    // Update warning level based on move count relative to weeksUntilAGI
+    updateWarningLevel: function() {
+      const timeElement = $('#movecount-time');
+      const moneyElement = $('#movecount-money');
+      
+      // Remove all warning classes
+      timeElement.removeClass('warning-low warning-medium warning-high warning-critical');
+      moneyElement.removeClass('warning-low warning-medium warning-high warning-critical');
+      
+      // Calculate percentage of moves to weeksUntilAGI
+      const percentage = (this.moveCount / this.weeksUntilAGI) * 100;
+      
+      // Apply appropriate warning class based on percentage
+      if (percentage >= 90) {
+        timeElement.addClass('warning-critical');
+        moneyElement.addClass('warning-critical');
+      } else if (percentage >= 75) {
+        timeElement.addClass('warning-high');
+        moneyElement.addClass('warning-high');
+      } else if (percentage >= 50) {
+        timeElement.addClass('warning-medium');
+        moneyElement.addClass('warning-medium');
+      } else if (percentage >= 25) {
+        timeElement.addClass('warning-low');
+        moneyElement.addClass('warning-low');
+      }
+    },
+    
+    // Reset game progress
+    reset: function() {
+      this.moveCount = 0;
+      this.money = 0;
+      this.time = 0;
+      
+      // Update display
+      $('#movecount-time').text('0 weeks');
+      $('#movecount-money').text('$0');
+      
+      // Remove all warning classes
+      $('#movecount-time, #movecount-money').removeClass('warning-low warning-medium warning-high warning-critical');
+      
+      // Save reset state
+      this.saveProgress();
+      
+      // Also clear the saved game state for the current level
+      if (this.currentLevelId) {
+        this.clearSavedGameState(this.currentLevelId);
+      }
+    },
+    
+    // Save progress to localStorage
+    saveProgress: function() {
+      saveGameState('gameProgress', {
+        moveCount: this.moveCount,
+        money: this.money,
+        time: this.time,
+        currentLevelId: this.currentLevelId,
+        lastUpdated: new Date().toISOString()
+      });
+    },
+    
+    // Save the full game state to localStorage
+    saveGameState: function(levelId) {
+      if (!levelId || !window.gamestate) return;
+      
+      this.currentLevelId = levelId;
+      
+      // Create a copy of the gamestate to save
+      const stateCopy = JSON.parse(JSON.stringify(window.gamestate));
+      
+      // Save to localStorage
+      saveGameState(`savedGameState_${levelId}`, {
+        gameState: stateCopy,
+        lastUpdated: new Date().toISOString()
+      });
+      
+      // Also update the basic progress
+      this.saveProgress();
+    },
+    
+    // Clear the saved game state for a specific level
+    clearSavedGameState: function(levelId) {
+      if (!levelId) return;
+      
+      try {
+        localStorage.removeItem(`savedGameState_${levelId}`);
+        console.log(`Cleared saved game state for level ${levelId}`);
+      } catch (e) {
+        console.error('Error clearing saved game state:', e);
+      }
+    },
+    
+    // Load the full game state from localStorage
+    loadSavedGameState: function(levelId) {
+      if (!levelId) return null;
+      
+      const savedData = loadGameState(`savedGameState_${levelId}`, null);
+      if (!savedData || !savedData.gameState) {
+        return null;
+      }
+      
+      console.log(`Loaded saved game state for level ${levelId}`);
+      return savedData.gameState;
+    },
+    
+    // Load progress from localStorage
+    loadProgress: function() {
+      const savedProgress = loadGameState('gameProgress', {});
+      
+      if (savedProgress.moveCount !== undefined) {
+        this.moveCount = savedProgress.moveCount;
+        this.money = savedProgress.money || this.moveCount * 1000;
+        this.time = savedProgress.time || this.moveCount;
+        this.currentLevelId = savedProgress.currentLevelId;
+        
+        // Update display with properly formatted values
+        const timeText = this.formatTimeDisplay(this.time);
+        const moneyText = '$' + this.money.toLocaleString();
+        
+        $('#movecount-time').text(timeText);
+        $('#movecount-money').text(moneyText);
+        
+        // Update warning level
+        this.updateWarningLevel();
+      }
+    },
+    
+    // Format time display in the same way as game.js does
+    formatTimeDisplay: function(totalWeeks) {
+      const years = Math.floor(totalWeeks / 52);
+      let remainingWeeks = totalWeeks % 52;
+      const months = Math.floor(remainingWeeks / 4);
+      remainingWeeks = remainingWeeks % 4;
+      
+      let timeText = [];
+      if (years > 0) {
+        timeText.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+      }
+      if (months > 0) {
+        timeText.push(`${months} ${months === 1 ? 'month' : 'months'}`);
+      }
+      if (remainingWeeks > 0) {
+        timeText.push(`${remainingWeeks} ${remainingWeeks === 1 ? 'week' : 'weeks'}`);
+      }
+      if (timeText.length === 0) {
+        timeText.push('0 weeks');
+      }
+      
+      return timeText.join(', ');
+    },
+    
+    // Set the weeksUntilAGI value for the current level
+    setWeeksUntilAGI: function(weeks) {
+      this.weeksUntilAGI = weeks || 25; // Default to 25 if not provided
+      this.updateWarningLevel(); // Update warning level with new threshold
+    }
+  };
+
+  // Track move through custom event
+  document.addEventListener('game:move', function() {
+    gameProgress.incrementMoves();
+    
+    // Save the full game state after each move
+    if (window.gamestate && window.gamestate.levelId) {
+      gameProgress.saveGameState(window.gamestate.levelId);
+    }
+  });
 
   $(document).ready(function() {
     // Show loading screen on page load
@@ -229,12 +467,19 @@
         $('.restart-modal').css('display', 'none');
         $('#restart-confirmation-text').val('');
         
-        // Reset game state
-        saveGameState('gameProgress', {});
-        
-        // Reload the current level or go back to the beginning
+        // Get current level ID before reset
         const urlParams = new URLSearchParams(window.location.search);
         const levelId = urlParams.get('levelid');
+        
+        // Clear saved game state for this level
+        if (levelId) {
+          gameProgress.clearSavedGameState(levelId);
+        }
+        
+        // Reset game progress
+        gameProgress.reset();
+        
+        // Reload the current level or go back to the beginning
         if (levelId) {
           window.location.reload(); // This reloads the current level
         } else {
@@ -249,17 +494,19 @@
       }
     });
 
-    // Load game progress if available
-    const gameProgress = loadGameState('gameProgress', {});
+    // Load game progress
+    gameProgress.loadProgress();
     
-    // You can use the gameProgress object to restore any saved state
-    // For example, you could restore money and time:
-    if (gameProgress.money) {
-      $('#movecount-money').text('$' + gameProgress.money);
-    }
+    // Load current level's weeksUntilAGI from config if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const levelId = urlParams.get('levelid');
     
-    if (gameProgress.time) {
-      $('#movecount-time').text(gameProgress.time + ' weeks');
+    if (levelId) {
+      // Find the level in config.customLevels
+      const levelConfig = config.customLevels.find(level => level.id === levelId);
+      if (levelConfig && levelConfig.weeksUntilAGI !== undefined) {
+        gameProgress.setWeeksUntilAGI(levelConfig.weeksUntilAGI);
+      }
     }
   });
 
@@ -318,18 +565,8 @@
     container.append(levelsList);
   }
 
-  // Add this to your existing game code where appropriate
-  // This is an example of how you might want to save progress during gameplay
-  function updateGameProgress(money, time) {
-    const gameProgress = {
-      money: money,
-      time: time,
-      // Add other state you want to preserve
-      lastUpdated: new Date().toISOString()
-    };
-    
-    saveGameState('gameProgress', gameProgress);
-  }
+  // Export the gameProgress object so it can be used from game.js
+  window.gameProgress = gameProgress;
 </script>
 <script src="game.js" type="module"></script>
 </html>

@@ -351,13 +351,55 @@ async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
   
   try {
     var comgamestate = await netService.getGameState(communityLevelId);
+    
+    // If not explicitly restarting, check for saved game state
+    if (!isRestart && window.gameProgress) {
+      const savedState = window.gameProgress.loadSavedGameState(communityLevelId);
+      if (savedState) {
+        console.log("Loading saved game state for level", communityLevelId);
+        window.gamestate = savedState;
+        // Make sure the levelId is set correctly (in case it wasn't saved properly)
+        window.gamestate.levelId = communityLevelId;
+        
+        // Initialize without resetting
+        initGameState(window.gamestate, true);
+        
+        updateMoveDisplay();
+        setWindowSize();
+        drawGameState();
+        
+        for (var lvl in window.worlds) {
+          if (~window.worlds[lvl].indexOf(communityLevelId)) {
+            $("#gamebody").css("background-color",window.colorMapping[lvl])
+          }
+        }
+        
+        // Hide loading screen
+        setTimeout(() => {
+          $(".loading").fadeOut(300);
+          if (window.loadingTimeout) {
+            clearTimeout(window.loadingTimeout);
+            window.loadingTimeout = null;
+          }
+        }, 200);
+        
+        return; // We've loaded the saved state, no need to continue
+      }
+    }
+    
+    // No saved state or we're restarting, proceed with loading the initial level state
     window.gamestate = comgamestate;
     comgamestate.levelId = communityLevelId;
     initGameState(comgamestate, isRestart);
-    if (isRestart && preserveMoves !== undefined) {
+    
+    // If not restarting, check if we should load moves from gameProgress
+    if (!isRestart && window.gameProgress && !preserveMoves) {
+      gamestate.moveCount = window.gameProgress.moveCount || 0;
+    } else if (isRestart && preserveMoves !== undefined) {
       gamestate.moveCount = preserveMoves;
-      updateMoveDisplay();
     }
+    
+    updateMoveDisplay();
     setWindowSize();
     drawGameState();
 
@@ -365,6 +407,11 @@ async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
       if (~window.worlds[lvl].indexOf(communityLevelId)) {
         $("#gamebody").css("background-color",window.colorMapping[lvl])
       }
+    }
+    
+    // If this is a fresh load, save initial state
+    if (!isRestart && window.gameProgress) {
+      window.gameProgress.saveGameState(communityLevelId);
     }
     
     // Hide loading screen with a slight delay to ensure everything is rendered
@@ -538,6 +585,23 @@ export function updateMoveDisplay() {
   const totalWeeks = moves;
   const money = moves * 5000;
   
+  // Synchronize with gameProgress if available
+  if (window.gameProgress) {
+    window.gameProgress.moveCount = moves;
+    window.gameProgress.time = totalWeeks;
+    window.gameProgress.money = money;
+    
+    // Let gameProgress update the display to ensure consistent formatting
+    const timeText = window.gameProgress.formatTimeDisplay(totalWeeks);
+    const moneyText = '$' + money.toLocaleString();
+    
+    $("#movecount-time").html(timeText);
+    $("#movecount-money").html(moneyText);
+    window.gameProgress.updateWarningLevel();
+    return;
+  }
+  
+  // If gameProgress is not available, format directly
   let years = Math.floor(totalWeeks / 52);
   let remainingWeeks = totalWeeks % 52;
   let months = Math.floor(remainingWeeks / 4);
@@ -564,12 +628,20 @@ export function updateMoveDisplay() {
   }).format(money);
 
   $("#movecount-time").html(timeText.join(', '));
-    $("#movecount-money").html(formattedMoney);
+  $("#movecount-money").html(formattedMoney);
 }
 
 export function moveYou(dir) {
   moveYouImplFn(dir);
   updateMoveDisplay();
+  
+  // Dispatch custom event to track moves for AGI counter
+  document.dispatchEvent(new CustomEvent('game:move'));
+  
+  // Save the game state (in case the event handler isn't working)
+  if (window.gameProgress && window.gamestate && window.gamestate.levelId) {
+    window.gameProgress.saveGameState(window.gamestate.levelId);
+  }
 }
 function moveYouImpl(dir) {
   playSfx("walk");
