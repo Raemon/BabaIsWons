@@ -50,6 +50,7 @@ window.onload = async function () {
   
   $(".close").click(function() {$(".modal").removeClass("visible"); setTimeout(() => $(".modal").hide(), 300);})
   
+  /* This handler is causing conflicts with the button handlers in game.html
   $("#worldselect").click(async function() {
     $(".modal").show();
     setTimeout(() => $(".modal").addClass("visible"), 10);
@@ -58,6 +59,7 @@ window.onload = async function () {
       await loadWorlds();
     }
   });
+  */
   
   // Tab switching
   $('.tab-button').click(async function() {
@@ -83,7 +85,11 @@ window.onload = async function () {
   $(".ctlup")[0]&& ($(".ctlup")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: -1, z: 0 }); },false));
   $(".ctldown")[0]&& ($(".ctldown")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: 1, z: 0 }); },false));
   $(".ctlspace")[0]&& ($(".ctlspace")[0].addEventListener('touchstart',function (e){ e.preventDefault(); gamewait(); },false));
+  
+  // Z button undo functionality disabled
+  /* 
   $(".ctlz")[0]&& ($(".ctlz")[0].addEventListener('touchstart',function (e) { e.preventDefault(); undo.undo(gameHandler); },false));
+  */
 
   $("body").keydown(function (event) {
     pressKey(event);
@@ -122,8 +128,6 @@ window.pressKey = function(event) {
     moveYou({ x: 0, y: 0, z: -1 });
   } else if (event.keyCode == 32) {
     gamewait();
-  } else if (event.keyCode == 90) {
-    undo.undo(gameHandler);
   }
 }
 function gamewait() {
@@ -187,13 +191,38 @@ async function tmp() {
   }, 0);
 }
 function loadPremadeLevel(levelnum) {
+  // Show the loading screen
+  $(".loading").css("display", "flex");
+  
   var levelTag = document.createElement("script");
   levelTag.type="text/javascript";
   levelTag.onload = function() {
     makeGameState(levelnum || 1);
     setWindowSize();
     drawGameState();
+    
+    // Hide loading screen with a slight delay to ensure everything is rendered
+    setTimeout(() => {
+      $(".loading").fadeOut(300);
+      // Clear the loading timeout if it exists
+      if (window.loadingTimeout) {
+        clearTimeout(window.loadingTimeout);
+        window.loadingTimeout = null;
+      }
+    }, 200);
   };
+  
+  levelTag.onerror = function(error) {
+    console.error("Error loading level:", error);
+    // Even if there's an error, hide the loading screen
+    $(".loading").fadeOut(300);
+    // Clear the loading timeout if it exists
+    if (window.loadingTimeout) {
+      clearTimeout(window.loadingTimeout);
+      window.loadingTimeout = null;
+    }
+  };
+  
   levelTag.src=`levels/level${levelnum}.js`;
   $("head")[0].appendChild(levelTag);
 }
@@ -317,20 +346,44 @@ window.loadLevel = function(levelId, isRestart, preserveMoves) { // window level
   setTimeout(() => $(".modal").hide(), 300);
 }
 async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
-  var comgamestate = await netService.getGameState(communityLevelId);
-  window.gamestate = comgamestate;
-  comgamestate.levelId = communityLevelId;
-  initGameState(comgamestate, isRestart);
-  if (isRestart && preserveMoves !== undefined) {
-    gamestate.moveCount = preserveMoves;
-    updateMoveDisplay();
-  }
-  setWindowSize();
-  drawGameState();
+  // Show the loading screen before starting to load
+  $(".loading").css("display", "flex");
+  
+  try {
+    var comgamestate = await netService.getGameState(communityLevelId);
+    window.gamestate = comgamestate;
+    comgamestate.levelId = communityLevelId;
+    initGameState(comgamestate, isRestart);
+    if (isRestart && preserveMoves !== undefined) {
+      gamestate.moveCount = preserveMoves;
+      updateMoveDisplay();
+    }
+    setWindowSize();
+    drawGameState();
 
-  for (var lvl in window.worlds) {
-    if (~window.worlds[lvl].indexOf(communityLevelId)) {
-      $("#gamebody").css("background-color",window.colorMapping[lvl])
+    for (var lvl in window.worlds) {
+      if (~window.worlds[lvl].indexOf(communityLevelId)) {
+        $("#gamebody").css("background-color",window.colorMapping[lvl])
+      }
+    }
+    
+    // Hide loading screen with a slight delay to ensure everything is rendered
+    setTimeout(() => {
+      $(".loading").fadeOut(300);
+      // Clear the loading timeout if it exists
+      if (window.loadingTimeout) {
+        clearTimeout(window.loadingTimeout);
+        window.loadingTimeout = null;
+      }
+    }, 200);
+  } catch (error) {
+    console.error("Error loading level:", error);
+    // Even if there's an error, hide the loading screen
+    $(".loading").fadeOut(300);
+    // Clear the loading timeout if it exists
+    if (window.loadingTimeout) {
+      clearTimeout(window.loadingTimeout);
+      window.loadingTimeout = null;
     }
   }
 }

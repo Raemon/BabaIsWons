@@ -18,18 +18,20 @@
       </header>
 
       <main class="game-container">
-        <div id="worldselect">
+        <div id="worldselect" class="game-section">
           <button id="worldselect-button">Select World</button>
+          <button id="restart-button">Restart Timeline</button>
         </div>
 
-        <div id="gamebody"></div>
+        <div id="gamebody" class="game-section"></div>
         
-        <div id="costs">
+        <div id="costs" class="game-section">
           <div class="costs-content">
             <span class="costs-label">Research Costs:</span>
             <div class="costs-details">
               <span id="movecount-time">0 weeks</span>
               <span id="movecount-money">$0</span>
+              <span id="months-until-agi">Months until AGI: Unknown</span>
             </div>
           </div>
         </div>
@@ -42,15 +44,6 @@
       </footer>
   </div>
   
-  <div id="mobileControls">
-    <span class="ctlleft">&#8592;</span>
-    <span class="ctlup">&#8593;</span>
-    <span class="ctlright">&#8594;</span>
-    <span class="ctldown">&#8595;</span>
-    <span class="ctlspace">sp</span>
-    <span class="ctlz">Z</span>
-  </div>
-  
   <div id="ruleUI"></div>
   
   <div class="loading">Loading</div>
@@ -58,18 +51,43 @@
   <div class="modal browse-modal">
     <div class="modal-content">
       <h2>Select World</h2>
-      <div class="modal-tabs">
-        <button class="tab-button selected" data-tab="official">Official Worlds</button>
-        <button class="tab-button" data-tab="custom">Custom Levels</button>
+      
+      <div id="custom-levels" class="main-section">
+        <h2 class="section-title">Custom Levels</h2>
+        <!-- Will be populated by JavaScript -->
       </div>
-      <div class="tab-content visible" id="official-levels">
+      
+      <div class="toggle-container">
+        <button id="toggle-original-levels" class="toggle-button">Show Original Levels</button>
+      </div>
+      
+      <div id="official-levels" class="secondary-section" style="display: none;">
+        <h3 class="secondary-title">Official Worlds</h3>
         <div class="world-grid">
           <!-- Will be populated by JavaScript -->
         </div>
       </div>
-      <div class="tab-content" id="custom-levels">
-        <!-- Will be populated by JavaScript -->
+      
+      <button class="close">X</button>
+    </div>
+  </div>
+
+  <!-- Add this after the browse-modal div -->
+  <div class="modal restart-modal">
+    <div class="modal-content">
+      <h2>Restart Timeline</h2>
+      <p class="restart-warning">Are you sure you want to restart?</p>
+      
+      <div class="restart-confirmation">
+        <p>To confirm restart, please type:</p>
+        <p><em>"This timeline is lost. 8 billion lives, disappeared forever. I hope I can plan better in the next timeline."</em></p>
+        <input type="text" id="restart-confirmation-text" class="restart-input" placeholder="Type the confirmation message...">
+        <div class="restart-actions">
+          <button id="cancel-restart" class="secondary-button">Cancel</button>
+          <button id="confirm-restart" class="danger-button">Confirm Restart</button>
+        </div>
       </div>
+      
       <button class="close">X</button>
     </div>
   </div>
@@ -96,31 +114,153 @@
   import config from './config.js';
   window.config = config;
 
+  // Helper function to save game state to localStorage
+  function saveGameState(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.error('Error saving to localStorage:', e);
+    }
+  }
+
+  // Helper function to load game state from localStorage
+  function loadGameState(key, defaultValue) {
+    try {
+      const savedState = localStorage.getItem(key);
+      return savedState ? JSON.parse(savedState) : defaultValue;
+    } catch (e) {
+      console.error('Error loading from localStorage:', e);
+      return defaultValue;
+    }
+  }
+
   $(document).ready(function() {
+    // Show loading screen on page load
+    $(".loading").css("display", "flex");
+    
+    // If no level is loaded within 10 seconds, hide the loading screen to prevent it from being stuck
+    const loadingTimeout = setTimeout(() => {
+      $(".loading").fadeOut(300);
+    }, 10000);
+    
+    // Keep track of the loading timeout to clear it when the level loads
+    window.loadingTimeout = loadingTimeout;
+    
+    // Load saved tab preference
+    const savedTab = loadGameState('selectedTab', 'custom');
+    
+    // Prevent modal content clicks from bubbling
+    $('.modal-content').click(function(event) {
+      event.stopPropagation();
+    });
+    
+    // Toggle original levels
+    $(document).on('click', '#toggle-original-levels', function(event) {
+      event.stopPropagation(); // Prevent bubbling
+      const $officialLevels = $('#official-levels');
+      if ($officialLevels.is(':visible')) {
+        $officialLevels.slideUp(300);
+        $(this).text('Show Original Levels');
+      } else {
+        $officialLevels.slideDown(300);
+        $(this).text('Hide Original Levels');
+      }
+    });
+    
     // Modal handling
-    $('#worldselect-button').click(function() {
-      $('.browse-modal').show();
+    $('#worldselect-button').click(function(event) {
+      event.stopPropagation(); // Prevent bubbling
+      
+      // Make sure restart modal is hidden first
+      $('.restart-modal').css('display', 'none');
+      
+      // Show browse modal
+      $('.browse-modal').css('display', 'flex');
+      $('.browse-modal').addClass('visible');
+      
+      // Load both sections
+      loadCustomLevels();
       loadWorlds();
     });
 
-    $('.browse-modal .close').click(function() {
-      $('.browse-modal').hide();
+    $('.browse-modal .close').click(function(event) {
+      event.stopPropagation(); // Prevent bubbling
+      $('.browse-modal').removeClass('visible');
+      setTimeout(() => $('.browse-modal').css('display', 'none'), 300);
     });
 
-    // Tab switching
-    $('.tab-button').click(async function() {
-      $('.tab-button').removeClass('selected');
-      $(this).addClass('selected');
-      $('.tab-content').removeClass('visible');
+    // Restart button handling
+    $('#restart-button').click(function(event) {
+      event.stopPropagation(); // Prevent bubbling
       
-      const tab = $(this).data('tab');
-      const tabContent = $(`#${tab}-levels`);
-      tabContent.addClass('visible');
+      // Make sure browse modal is hidden first
+      $('.browse-modal').css('display', 'none');
       
-      if (tab === 'custom' && tabContent.children().length === 0) {
-        await loadCustomLevels();
+      // Show restart modal
+      $('.restart-modal').css('display', 'flex');
+      $('.restart-modal').addClass('visible');
+    });
+
+    $('#cancel-restart').click(function(event) {
+      event.stopPropagation(); // Prevent bubbling
+      $('.restart-modal').removeClass('visible');
+      setTimeout(() => {
+        $('.restart-modal').css('display', 'none');
+        $('#restart-confirmation-text').val('');
+      }, 300);
+    });
+
+    $('.restart-modal .close').click(function(event) {
+      event.stopPropagation(); // Prevent bubbling
+      $('.restart-modal').removeClass('visible');
+      setTimeout(() => {
+        $('.restart-modal').css('display', 'none');
+        $('#restart-confirmation-text').val('');
+      }, 300);
+    });
+
+    $('#confirm-restart').click(function(event) {
+      event.stopPropagation(); // Prevent bubbling
+      const confirmationText = $('#restart-confirmation-text').val().trim();
+      const expectedText = "This timeline is lost. 8 billion lives, disappeared forever. I hope I can plan better in the next timeline.";
+      
+      if (confirmationText === expectedText) {
+        // Actually restart the game
+        $('.restart-modal').css('display', 'none');
+        $('#restart-confirmation-text').val('');
+        
+        // Reset game state
+        saveGameState('gameProgress', {});
+        
+        // Reload the current level or go back to the beginning
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelId = urlParams.get('levelid');
+        if (levelId) {
+          window.location.reload(); // This reloads the current level
+        } else {
+          window.location.href = 'home.html'; // Go back to home if no level is specified
+        }
+      } else {
+        // Shake the input to indicate incorrect text
+        $('#restart-confirmation-text').addClass('error');
+        setTimeout(() => {
+          $('#restart-confirmation-text').removeClass('error');
+        }, 500);
       }
     });
+
+    // Load game progress if available
+    const gameProgress = loadGameState('gameProgress', {});
+    
+    // You can use the gameProgress object to restore any saved state
+    // For example, you could restore money and time:
+    if (gameProgress.money) {
+      $('#movecount-money').text('$' + gameProgress.money);
+    }
+    
+    if (gameProgress.time) {
+      $('#movecount-time').text(gameProgress.time + ' weeks');
+    }
   });
 
   async function loadWorlds() {
@@ -176,6 +316,19 @@
     });
     
     container.append(levelsList);
+  }
+
+  // Add this to your existing game code where appropriate
+  // This is an example of how you might want to save progress during gameplay
+  function updateGameProgress(money, time) {
+    const gameProgress = {
+      money: money,
+      time: time,
+      // Add other state you want to preserve
+      lastUpdated: new Date().toISOString()
+    };
+    
+    saveGameState('gameProgress', gameProgress);
   }
 </script>
 <script src="game.js" type="module"></script>
