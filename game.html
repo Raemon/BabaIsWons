@@ -116,7 +116,7 @@
       
       <div class="restart-confirmation">
         <p>To confirm restart, please type:</p>
-        <p><em class="uncopyable">"This timeline is lost. 8 billion lives, disappeared forever. I hope I can plan better in the next timeline."</em></p>
+        <p><em class="uncopyable">"This timeline is lost. I shall abandon it. I hope I can plan better in the next one."</em></p>
         <input type="text" id="restart-confirmation-text" class="restart-input" placeholder="Type the confirmation message...">
         <div class="restart-actions">
           <button id="cancel-restart" class="secondary-button">Cancel</button>
@@ -454,7 +454,7 @@
     $('#confirm-restart').click(function(event) {
       event.stopPropagation(); // Prevent bubbling
       const confirmationText = $('#restart-confirmation-text').val().trim();
-      const expectedText = "This timeline is lost. 8 billion lives, disappeared forever. I hope I can plan better in the next timeline.";
+      const expectedText = "This timeline is lost. I shall abandon it. I hope I can plan better in the next one.";
       
       if (confirmationText === expectedText) {
         // Actually restart the game
