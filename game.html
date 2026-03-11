@@ -46,6 +46,30 @@
         -ms-user-select: none;
         pointer-events: none;
       }
+      body.simple-view .game-header,
+      body.simple-view #worldselect,
+      body.simple-view #costs,
+      body.simple-view #ruleUI,
+      body.simple-view .loading,
+      body.simple-view .modal {
+        display: none !important;
+      }
+      body.simple-view .main-content,
+      body.simple-view .game-container {
+        padding: 0;
+        margin: 0;
+      }
+      body.simple-view .main-content {
+        min-height: 100vh;
+      }
+      body.simple-view .game-container {
+        min-height: 100vh;
+        justify-content: center;
+        align-items: center;
+      }
+      body.simple-view #gamebody {
+        margin-right: 0;
+      }
     </style>
 </head>
 <body class="game-page">
@@ -149,6 +173,10 @@
 <script type="module">
   import config from './config.js';
   window.config = config;
+  const isSimpleView = new URLSearchParams(window.location.search).get('simple') === 'true';
+  if (isSimpleView) {
+    document.body.classList.add('simple-view');
+  }
 
   // Helper function to save game state to localStorage
   function saveGameState(key, value) {
