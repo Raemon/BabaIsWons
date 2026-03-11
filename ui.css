@@ -393,6 +393,11 @@ body {
 }
 
 @media screen and (max-width: 1400px) {
+  .game-page {
+    height: auto;
+    overflow: visible;
+  }
+
   .game-container {
     padding-top: var(--spacing-md);
     flex-direction: column;
@@ -405,15 +410,15 @@ body {
   }
   
   #costs {
-    position: relative;
+    position: static;
     margin: var(--spacing-md) auto;
     top: auto;
     right: auto;
     width: 90%;
     display: flex;
     justify-content: center;
-    order: 3; /* Place after gamebody */
-    margin-top: 2rem;
+    order: 3;
+    margin-top: 0;
   }
   
   .costs-content {
@@ -433,7 +438,7 @@ body {
     align-items: center;
     margin: 0 auto;
     width: 100%;
-    order: 1; /* First element */
+    order: 2;
   }
 
   #gamebody {
@@ -442,7 +447,7 @@ body {
     max-width: 70rem;
     max-height: 70rem;
     margin-right: 0;
-    order: 2; /* Second element */
+    order: 1;
   }
   
   #worldselect-button, #restart-button {
@@ -477,6 +482,7 @@ body {
     padding-bottom: 100px; /* Make room for mobile controls */
     margin: 0;
     width: 100%;
+    align-items: center;
   }
 
   .left-controls {
@@ -488,17 +494,39 @@ body {
   }
 
   .main-content {
-    padding: var(--spacing-md);
+    padding: 0;
     width: 100%;
     align-items: center;
   }
 
   #gamebody {
-    width: 95vw; /* Larger game area to fit screen margins */
-    height: 95vw;
-    max-width: 95vw;
-    max-height: 95vw;
+    width: min(100vw, calc(100vh - 220px));
+    height: min(100vw, calc(100vh - 220px));
+    max-width: 100vw;
+    max-height: 100vw;
     margin: 0 auto;
+    order: 1;
+  }
+
+  #worldselect {
+    order: 2;
+  }
+
+  #costs {
+    order: 3;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .costs-content {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .level-title-prefix {
+    display: none;
   }
   
   #worldselect-button, #restart-button {
@@ -627,9 +655,9 @@ body {
   }
 
   #gamebody {
-    width: 100vw; /* Full width */
-    height: 100vw;
-    max-width: 100%; 
+    width: min(100vw, calc(100vh - 200px));
+    height: min(100vw, calc(100vh - 200px));
+    max-width: 100vw; 
     max-height: 100vw;
     margin: 0 auto;
     padding: 0;

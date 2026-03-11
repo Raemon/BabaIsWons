@@ -15,6 +15,7 @@ window.gamestate = {
 window.globalId = 1;
 window.selectedObj = {};
 window.movesToExecute = [];
+let resizeTimeout = null;
 export let gameHandler = {removeObj:removeObj,makeThing:makeThing,move:move,runDeferredMoves:runDeferredMoves,triggerWin:triggerWin, makeNewObjectFromOld:makeNewObjectFromOld};
 window.restart = function() {
   var currentLevelId = gamestate.levelId;
@@ -80,6 +81,7 @@ window.onload = async function () {
   });
   
   setWindowSize();
+  window.addEventListener("resize", onWindowResize);
   $(".ctlleft")[0] && ($(".ctlleft")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: -1, y: 0, z: 0 }); },false));
   $(".ctlright")[0]&& ($(".ctlright")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 1, y: 0, z: 0 }); },false));
   $(".ctlup")[0]&& ($(".ctlup")[0].addEventListener('touchstart',function (e) { e.preventDefault(); moveYou({ x: 0, y: -1, z: 0 }); },false));
@@ -104,6 +106,18 @@ window.onload = async function () {
       }
     }
   }, 700);
+}
+function onWindowResize() {
+  if (resizeTimeout) {
+    window.clearTimeout(resizeTimeout);
+  }
+  resizeTimeout = window.setTimeout(function() {
+    if (!window.gamestate || !window.gamestate.size || !$("#gamebody").length) {
+      return;
+    }
+    setWindowSize();
+    drawGameState();
+  }, 80);
 }
 window.pressKey = function(event) {
   gamestate.solution.push(event.keyCode);
@@ -436,6 +450,10 @@ async function loadCommunityLevel(communityLevelId, isRestart, preserveMoves) {
 }
 function setWindowSize() {
   const container = $('#gamebody');
+  container.css({
+    "width": "",
+    "height": ""
+  });
   const containerSize = Math.min(container.width(), container.height());
   
   // Calculate cell size that would fit in width and height
