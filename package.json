@@ -1,0 +1,23 @@
+{
+  "name": "babaiswons",
+  "version": "1.0.0",
+  "description": "Start server with `python3 -m http.server` or `python2 -m SimpleHTTPServer`",
+  "main": "config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Raemon/BabaIsWons.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Raemon/BabaIsWons/issues"
+  },
+  "homepage": "https://github.com/Raemon/BabaIsWons#readme",
+  "dependencies": {
+    "playwright": "^1.58.2"
+  }
+}
