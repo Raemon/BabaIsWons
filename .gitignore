@@ -8,3 +8,5 @@ temp2.py
 temp3.py
 .vercel
 .specstory/
+
+node_modules/*
