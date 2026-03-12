@@ -166,7 +166,10 @@ async function triggerWinImpl(obj) {
     origGameState.solution = solution;
     await netService.setGameState(origGameState, gamestate.levelId);*/
     window.setTimeout(function () {
-      loadLevel(findLevelByIndex(gamestate.levelId, 1));
+      const winMoves = gamestate.moveCount || 0;
+      const winLevelId = gamestate.levelId || "";
+      const replayUrl = `${window.location.pathname}${window.location.search}`;
+      window.location.href = `win.html?moves=${encodeURIComponent(winMoves)}&levelid=${encodeURIComponent(winLevelId)}&replay=${encodeURIComponent(replayUrl)}`;
     }, 1500);
   }
 }

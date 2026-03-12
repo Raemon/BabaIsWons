@@ -1,0 +1,89 @@
+<html>
+<head>
+    <link type="text/css" href="game.css" rel="stylesheet" />
+    <link type="text/css" href="ui.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <title>Puzzle Complete</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      .win-page {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .win-content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .win-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+    </style>
+</head>
+<body class="win-page">
+  <main class="win-content">
+    <h1>Puzzle Complete</h1>
+    <p id="move-summary">Moves: 0</p>
+    <div class="win-actions">
+      <a id="play-again-link" class="play-button" href="home.html">Play Again</a>
+      <a class="play-button" href="home.html">Home</a>
+    </div>
+  </main>
+  <script>
+    function formatTimeDisplay(totalWeeks) {
+      const years = Math.floor(totalWeeks / 52);
+      let remainingWeeks = totalWeeks % 52;
+      const months = Math.floor(remainingWeeks / 4);
+      remainingWeeks = remainingWeeks % 4;
+      const timeText = [];
+      if (years > 0) {
+        timeText.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+      }
+      if (months > 0) {
+        timeText.push(`${months} ${months === 1 ? 'month' : 'months'}`);
+      }
+      if (remainingWeeks > 0) {
+        timeText.push(`${remainingWeeks} ${remainingWeeks === 1 ? 'week' : 'weeks'}`);
+      }
+      if (timeText.length === 0) {
+        timeText.push('0 weeks');
+      }
+      return timeText.join(', ');
+    }
+    function getMoveCount() {
+      const queryMoves = Number(new URLSearchParams(window.location.search).get('moves'));
+      if (!Number.isNaN(queryMoves) && queryMoves >= 0) {
+        return queryMoves;
+      }
+      try {
+        const gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+        if (typeof gameProgress.moveCount === 'number' && gameProgress.moveCount >= 0) {
+          return gameProgress.moveCount;
+        }
+      } catch (e) {
+        console.error('Failed to read game progress:', e);
+      }
+      return 0;
+    }
+    const moveCount = getMoveCount();
+    const moveSummary = document.getElementById('move-summary');
+    moveSummary.textContent = `Moves: ${moveCount} (${formatTimeDisplay(moveCount)})`;
+    const searchParams = new URLSearchParams(window.location.search);
+    const replayUrl = searchParams.get('replay');
+    const levelId = searchParams.get('levelid');
+    if (replayUrl) {
+      document.getElementById('play-again-link').href = replayUrl;
+      document.getElementById('play-again-link').textContent = 'Play Again';
+    } else if (levelId) {
+      document.getElementById('play-again-link').href = `game.html?levelid=${encodeURIComponent(levelId)}`;
+      document.getElementById('play-again-link').textContent = 'Play Again';
+    }
+  </script>
+</body>
+</html>

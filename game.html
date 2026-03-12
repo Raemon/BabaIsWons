@@ -85,7 +85,6 @@
 
       <main class="game-container">
         <div id="worldselect" class="game-section">
-          <button id="worldselect-button">Select World</button>
           <button id="restart-button">Restart Timeline</button>
         </div>
 
@@ -427,22 +426,6 @@
       }
     });
     
-    // Modal handling
-    $('#worldselect-button').click(function(event) {
-      event.stopPropagation(); // Prevent bubbling
-      
-      // Make sure restart modal is hidden first
-      $('.restart-modal').css('display', 'none');
-      
-      // Show browse modal
-      $('.browse-modal').css('display', 'flex');
-      $('.browse-modal').addClass('visible');
-      
-      // Load both sections
-      loadCustomLevels();
-      loadWorlds();
-    });
-
     $('.browse-modal .close').click(function(event) {
       event.stopPropagation(); // Prevent bubbling
       $('.browse-modal').removeClass('visible');
